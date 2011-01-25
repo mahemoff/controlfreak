@@ -1,0 +1,27 @@
+{
+  "name": "Control Freak",
+  "version": "1.0",
+
+  "description": "Greasemonkey-like mods, but quicker to tweak",
+  "icons": { 
+    "16": "system16.png",
+    "32": "system32.png",
+    "128": "system128.png"
+  },
+
+  "browser_action": {
+    "default_icon": "system32.png",
+    "default_title": "Control Freak",
+    "default_popup": "popup.html"
+  },
+
+  "background_page": "background.html",
+  "options_page": "options.html",
+  "content_scripts": [{
+    "matches": ["*://*/*"],
+    "js": ["underscore-min.js", "content.js"]
+  }],
+
+  "permissions": ["tabs"]
+
+}

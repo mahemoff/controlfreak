@@ -1,0 +1,54 @@
+<style>
+  a,a:visited { color: #00b; }
+  .template { display: none; }
+  #controls { margin: 1em 0; }
+  ul { margin: 0; padding: 0; list-style-type: none; }
+  li { margin: 0; padding: 0; clear: left; }
+  h2 { font-size: normal; }
+  h1,h2,h3 { margin: 0; }
+  pre { border-radius: 10px; background: #e2e2e9; float: left; padding: 10px; }
+  .scriptType { font-size: x-small; background: #cfc; padding: 2px; }
+</style>
+<script src="jquery-1.4.2.min.js"></script>
+<script src="underscore-min.js"></script>
+<script src="util.js"></script>
+<script src="scriptDAO.js"></script>
+<script>
+
+$(function() {
+  $("#clear").click(function() {
+    if (!confirm("This will clear all scripts. You won't be able to get them back.")) return;
+    for (key in localStorage) {
+      delete localStorage[key];
+    }
+    repaint();
+  });
+  $("#refresh").click(repaint);
+  repaint();
+});
+
+function repaint() {
+  var scriptTemplate = _.template($("#scriptTemplate").val());
+  $("ul").empty();
+  _(scriptDAO.all()).each(function(script) {
+    $("<li>").html(scriptTemplate(script)).appendTo("ul");
+  });
+}
+
+function renderScope(scope) {
+  if (scope=="*") return "All Websites";
+  return "<a href='"+ (isURL(scope) ? scope : "http://"+scope) + "'>"+summary(scope)+"</a>";
+}
+
+</script>
+<h1>Control Freak Scripts</h1>
+
+<div id="controls"><button id="clear">Clear All Scripts</button> <button id="refresh">Refresh Display</button></div>
+
+<ul id="scripts">
+</ul>
+
+<textarea class="template" id="scriptTemplate">
+  <h3><%= renderScope(scope) %> <span class='scriptType'><%= scriptType.toUpperCase() %></span></h3>
+  <pre><%= text %></pre>
+</textarea>

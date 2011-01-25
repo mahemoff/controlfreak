@@ -1,0 +1,116 @@
+<html>
+<head>
+<script src="jquery-1.4.2.min.js"></script>
+<script src="jquery.url.js"></script>
+<script src="underscore-min.js"></script>
+<script src="scriptDAO.js"></script>
+<script src="url.js"></script>
+<script src="util.js"></script>
+<style>
+  /* see http://code.google.com/p/chromium/issues/detail?id=26152 */
+  html { width: 300px; height: 300px; }
+  body { overflow: hidden; border: 0px; width: 300px; height: 300px; margin: 5px 2.5% 10px; }
+  body iframe{ border: 0px;}
+  a,a:visited { color: #00b; }
+  textarea { width: 97.5%; }
+  .debug { display: none; }
+  #scopeZone { margin-bottom: 7px; }
+  #scopeDisplay { float: left; line-height: 1em; height: 1em; max-height: 1em; overflow: hidden; -webkit-text-overflow: ellipsis; text-overflow: ellipsis; max-width: 95%; }
+  #scopeDisplay { background: #e9e9ff; }
+  .scopeLevels { font-size: small; padding-top: 5px; clear: left; margin-bottom: 10px; }
+  .scopeLevels .divider { color: #999; }
+  .scopeLevel { overflow: hidden;  display: inline; cursor: pointer; color: #00b; text-decoration: underline; }
+  .active { background: #ddf; text-decoration: none; color: black; }
+  .undefined { font-style: italic; }
+  .defined { font-style: normal; }
+  #scriptTypes a { float: right; margin-right: 3%; }
+  .scriptType { background: #bbb; padding: 2px; border-bottom-color: white; z-index: 100; margin-right: 5px; cursor: pointer; border: 1px solid #666; display: inline; position: relative; opacity: 0.5; top: 0; }
+  .scriptType.active { background: white; cursor: default; opacity: 1; background: yellow; }
+  .active .openBorder { background: yellow; z-index: 400; }
+  .openBorder { position: absolute; bottom: -1; height: 1px; width: 100%; background: #666; z-index: 200; border-left: 1px solid #666; border-right: 1px solid #666; }
+  textarea, textarea:focus { outline: 0; }
+</style>
+<script>
+if (!localStorage["scopeLevel"]) localStorage["scopeLevel"] = "all";
+if (!localStorage["scriptType"]) localStorage["scriptType"] = "js";
+$(function() {
+  $(".scriptType").each(function() {
+    $("<div class='openBorder' />").appendTo(this);
+  });
+  $("textarea").change(save);
+  $("textarea").keyup(save);
+  $(".scopeLevel").click(function() {
+    updateScopeLevel($(this).attr("id"));
+  });
+  $(".scriptType").click(function() {
+    updateScriptType($(this).attr("id"));
+  });
+});
+function onPageChange(page) {
+  updateScopeLevel(localStorage["scopeLevel"]);
+  updateScriptType(localStorage["scriptType"]);
+}
+function updateScopeLevel(scopeLevel) {
+  localStorage["scopeLevel"] = scopeLevel;
+  repaint();
+}
+function updateScriptType(scriptType) {
+  localStorage["scriptType"] = scriptType;
+  repaint();
+}
+
+function repaint() {
+  $(".active").removeClass("active");
+
+  var scopeLevel=localStorage["scopeLevel"], scriptType=localStorage["scriptType"];
+  $("#scopeDisplay").html(scopeLevel=="all" ? "all sites" : (scopeLevel=="host" ? currentPage.getHost() : currentPage.getURL()));
+  $(".scopeLevel[id="+scopeLevel+"]").addClass("active");
+  $("textarea").val(scriptDAO.load(localStorage["scriptType"], getScope())||"");
+
+  $(".scriptType[id="+scriptType+"]").addClass("active");
+  $("textarea").val(scriptDAO.load(localStorage["scriptType"], getScope())||"");
+
+  $(".scopeLevel").each(function(i, aScopeLevel) {
+    $(this).classIf(scriptDAO.defined(scriptType, getScope(aScopeLevel.id)),
+      "defined", "undefined");
+  });
+
+  $(".scriptType").each(function(i, aScriptType) {
+    $(this).classIf(scriptDAO.defined(aScriptType.id, getScope(scopeLevel)),
+      "defined", "undefined");
+  });
+
+}
+
+function save() {
+  scriptDAO.save($("textarea").val(), localStorage["scriptType"], getScope());
+  repaint();
+}
+function getScope(scopeLevel) {
+  var scopeLevel = scopeLevel || localStorage["scopeLevel"];
+  return scopeLevel=="all" ? "*" : (scopeLevel=="host" ? currentPage.getHost() : currentPage.getURL());
+}
+function log(m) {
+  console.log(m);
+}
+</script>
+</head>
+<body>
+<a target="x" class="debug" href="chrome-extension://flbbllfioochfjaefcnhjiddnjnbkbno/popup.html">debug</a>
+<div id="scopeZone" class="zone">
+  <div id="scopeDisplay"></div>
+  <div class="scopeLevels">
+    <span id="all" class="scopeLevel">All</span> <span class="divider">&gt;</span>
+    <span id="host" class="scopeLevel">This&nbsp;Domain</span> <span class="divider">&gt;</span>
+    <span id="url" class="scopeLevel">This&nbsp;Page</span>
+  </div>
+</div>
+
+<div id="scriptTypes" class="zone">
+  <span id="js" class="scriptType active">JS</span>
+  <span id="css" class="scriptType">CSS</span>
+  <a target="options" href="options.html">manage&nbsp;all</a>
+</div>
+<textarea rows="16"></textarea>
+</body>
+</html>
