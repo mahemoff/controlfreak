@@ -104,10 +104,11 @@ function repaint() {
   
   $("#scopeDisplay").html(scopeLevel=="all" ? "all sites" : (scopeLevel=="host" ? currentPage.getHost() : currentPage.getURL()));
   $(".scopeLevel[id="+scopeLevel+"]").addClass("active");
-  $(".scriptType[id="+scriptType+"]").addClass("active");
-  
   getEditor().setCode(scriptDAO.load(localStorage["scriptType"], getScope())||"");
-
+  
+  $(".scriptType[id="+scriptType+"]").addClass("active");
+  getEditor().setCode(scriptDAO.load(localStorage["scriptType"], getScope())||"");
+  
   $(".scopeLevel").each(function(i, aScopeLevel) {
     $(this).classIf(scriptDAO.defined(scriptType, getScope(aScopeLevel.id)),
       "defined", "undefined");
