@@ -9,30 +9,64 @@
 <script src="codemirror/codemirror.js"></script>
 <style>
   /* see http://code.google.com/p/chromium/issues/detail?id=26152 */
-  html { width: 300px; height: 300px; }
-  body { overflow: hidden; border: 0px; width: 300px; height: 300px; margin: 5px 2.5% 10px; }
+  html { width: 300px; height: 300px;}
+  body { overflow: hidden; border: 0px; width: 300px; height: 300px; margin: 0px 0px 10px;}
+  div#wrapper {height: 100%; width: 100%; border-radius: 6px; border: 1px solid #DDD; background-color: #EEE; margin: 0; padding: 0; overflow:hidden;}
   body iframe{ border: 0px;}
   a,a:visited { color: #00b; }
   textarea { width: 97.5%; }
   .debug { display: none; }
-  #scopeZone { margin-bottom: 7px;height: 50px; }
-  #scopeDisplay { float: left; line-height: 1em; height: 1em; max-height: 1em; overflow: hidden; -webkit-text-overflow: ellipsis; text-overflow: ellipsis; width: 100%; height: 24px;margin-bottom: 3px; padding: 5px; font-size: 11px;}
-  #scopeDisplay { background: #e9e9ff;}
-  .scopeLevels { font-size: smaller; clear: left; margin-bottom: 4px; width: 100%; height: 20px; margin-top: 2px;}
-  .scopeLevels .divider { color: #666; float:left; display: block; padding: 3px;}
-  .scopeLevel { overflow: hidden;  display: block; cursor: pointer; color: #222;border: 1px solid #888; float:left;padding: 2px 4px; background-color: #EEE; margin: 0px 2px 0px 0px;}
-  .scopeLevel:hover{ color: #FFF; background-color: #68E;}
+  #scopeZone { margin-bottom: 7px;height: 50px; margin-top: 7px; }
+  #scopeDisplay { float: left; line-height: 1em;text-overflow:ellipsis; height: 14px;margin-bottom: 3px; padding: 5px; font-size: 12px; width:96.75%; white-space: nowrap; overflow:hidden;}
+  #scopeDisplay { background: #FFF;}
+  .scopeLevels { list-style: none; clear: left; margin: 0px; width: 100%; height: 24px; margin-top: 2px; padding: 0px; background-color: #DDD;}
+  .scopeLevel { float: left; 
+    position: relative; 
+    display: block; 
+    cursor: pointer; 
+    color: #222; 
+    padding: 3px 10px 2px 16px; 
+    background-color: #DDD;
+    margin: 0px 0px 0px 0px;}
+  .scopeLevel:first-child{
+    padding-left: 6px;
+  }
+  .scopeLevel:after{content: " "; 
+    width: 0; height: 0; 
+    display: block; 
+    position: absolute; 
+    right: -11px; 
+    top: 0; 
+    border-top: 11px solid transparent; 
+    border-bottom: 11px solid transparent; 
+    border-left: 11px solid #DDD;
+    z-index: 100;}
+  .scopeLevel:hover{ color: #111; background-color: #BBB;}
+  .scopeLevel:hover:after{
+    border-left: 11px solid #BBB!important;
+  }
   .active { background: #68E; text-decoration: none; color: #FFF; }
+  .scopeLevel.active:after{
+    border-left: 11px solid #68E;
+  }
+  .scopeLevel:nth-child(n+2):before{
+    content: " "; display: block; position: absolute; left: 1px; top: 0;
+    border-top: 11px solid transparent;
+    border-bottom: 11px solid transparent;
+    border-left: 11px solid #EEE;
+    width: 0; height: 0;
+    z-index: 50;
+  }
   .undefined { font-style: italic; }
   .defined { font-style: normal; }
-  #scriptTypes {float:left; clear:both; width: 100%;}
+  #scriptTypes {float:left; clear:both; width: 94%; padding-left: 13px;}
   #scriptTypes a { float: right; margin-right: 3%;}
   .scriptType { background: #bbb; padding: 2px 4px; border-bottom-color: white; z-index: 100; margin-right: 5px; cursor: pointer; border: 1px solid #666; display: inline; position: relative; opacity: 0.5; top: 0; }
   .scriptType.active { background: white; cursor: default; opacity: 1; background: #68E; color: #FFF; padding: 2px 4px;}
   .active .openBorder { background: #68E; z-index: 400; color: #FFF; }
   .openBorder { position: absolute; bottom: -1; height: 1px; width: 100%; background: #666; z-index: 200; border-left: 1px solid #666; border-right: 1px solid #666; }
   textarea, textarea:focus {outline: 0;}
-  .CodeMirror-wrapping{border-top: 1px solid #666; margin-top: 28px;}
+  .CodeMirror-wrapping{border: 1px solid #CCC; background: #FFF; width: 96%;margin: 27px 2% 0px 2%; border-radius: 6px;}
 </style>
 <script>
 if (!localStorage["scopeLevel"]) localStorage["scopeLevel"] = "all";
@@ -99,6 +133,7 @@ function getScope(scopeLevel) {
 function log(m) {
   console.log(m);
 }
+
 /**
  * Private variable for the editor
  * @private
@@ -113,7 +148,7 @@ var editor_ = null;
 function getEditor(){
     if(editor_ === null){
         editor_ = CodeMirror.fromTextArea('code', {
-            height: '220px',
+            height: '190px',
             parserfile: ["parsecss.js", "tokenizejavascript.js", "parsejavascript.js"],
             stylesheet: ['css/jscolors.css', 'css/csscolors.css'],
             path: 'codemirror/', //location of the extra js source
@@ -129,22 +164,24 @@ function getEditor(){
 </script>
 </head>
 <body>
-<a target="x" class="debug" href="chrome-extension://flbbllfioochfjaefcnhjiddnjnbkbno/popup.html">debug</a>
-<div id="scopeZone" class="zone">
-  <div class="scopeLevels">
-    <span id="all" class="scopeLevel">All</span> <span class="divider">&gt;</span>
-    <span id="host" class="scopeLevel">This&nbsp;Domain</span> <span class="divider">&gt;</span>
-    <span id="url" class="scopeLevel">This&nbsp;Page</span>
+<div id="wrapper">
+  <a target="x" class="debug" href="chrome-extension://flbbllfioochfjaefcnhjiddnjnbkbno/popup.html">debug</a>
+  <div id="scopeZone" class="zone">
+    <ul class="scopeLevels">
+      <li id="all" class="scopeLevel">All</li>
+      <li id="host" class="scopeLevel">This&nbsp;Domain</li>
+      <li id="url" class="scopeLevel">This&nbsp;Page</li>
+    </ul>
+    <div id="scopeDisplay"></div>
   </div>
-  <div id="scopeDisplay"></div>
-</div>
-
-<div id="scriptTypes" class="zone">
-  <span id="js" class="scriptType active">Javascript</span>
-  <span id="css" class="scriptType">CSS</span>
-  <a target="options" href="options.html">manage&nbsp;all</a>
-</div>
-<textarea id="code"></textarea>
-<button onclick="save(); return false;">Save</button> 
+  
+  <div id="scriptTypes" class="zone">
+    <span id="js" class="scriptType active">Javascript</span>
+    <span id="css" class="scriptType">CSS</span>
+    <a target="options" href="options.html">manage&nbsp;all</a>
+  </div>
+  <textarea id="code"></textarea>
+  <button onclick="save(); return false;">Save</button>
+</div> 
 </body>
 </html>
