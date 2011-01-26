@@ -38,34 +38,6 @@
 if (!localStorage["scopeLevel"]) localStorage["scopeLevel"] = "all";
 if (!localStorage["scriptType"]) localStorage["scriptType"] = "js";
 
-/**
- * Private variable for the editor
- * @private
- */
-var editor_ = null;
-
-/**
- * function accessor for the codemirror editor. gets created on the fly, and maintain's it's
- * singltonnyness.
- * @return {Object} A Codemirror Editor that is bound to the #code textarea.
- */
-function getEditor(){
-    if(editor_ == null){
-        editor_ = CodeMirror.fromTextArea('code', {
-            height: '220px',
-            parserfile: ["parsecss.js", "tokenizejavascript.js", "parsejavascript.js"],
-            stylesheet: ['css/jscolors.css', 'css/csscolors.css'],
-            path: 'codemirror/', //location of the extra js source
-            saveFunction: save, //map cmd+s to the save button's function
-            continuousScanning: 200, // keep scanning the document for changes
-            autoMatchParens: true //auto insert parens where needed
-        });
-        return editor_;
-    } else{
-        return editor_;
-    }
-}
-
 $(function() {
   $(".scriptType").each(function() {
     $("<div class='openBorder' />").appendTo(this);
@@ -126,6 +98,32 @@ function getScope(scopeLevel) {
 }
 function log(m) {
   console.log(m);
+}
+/**
+ * Private variable for the editor
+ * @private
+ */
+var editor_ = null;
+
+/**
+ * function accessor for the codemirror editor. gets created on the fly, and maintain's it's
+ * singltonnyness.
+ * @return {Object} A Codemirror Editor that is bound to the #code textarea.
+ */
+function getEditor(){
+    if(editor_ === null){
+        editor_ = CodeMirror.fromTextArea('code', {
+            height: '220px',
+            parserfile: ["parsecss.js", "tokenizejavascript.js", "parsejavascript.js"],
+            stylesheet: ['css/jscolors.css', 'css/csscolors.css'],
+            path: 'codemirror/', //location of the extra js source
+            saveFunction: save, //map cmd+s to the save button's function
+            autoMatchParens: true //auto insert parens where needed
+        });
+        return editor_;
+    } else{
+        return editor_;
+    }
 }
 
 </script>
