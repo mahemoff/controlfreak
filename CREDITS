@@ -1,3 +1,13 @@
+Control Freak was created by Michael Mahemoff (http://mahemoff.com), a
+Developer Advocate at Google.
+
 System Icon from Tango Icon Library
 http://tango.freedesktop.org/Tango_Icon_Library
 which is licensed under a Public Domain license (Can I get a Woo Yeah?!!)
+
+Uses the Codemirror editor (http://codemirror.net/), which is licensed under a
+zlib-style model. A custom package was compressed with Closure, using the 
+tool on CodeMirror's website.
+
+Thanks to Adam Thurlow (http://thurloat.com/) for incorporating CodeMirror and 
+prettying up the UI.

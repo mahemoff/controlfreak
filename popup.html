@@ -6,53 +6,68 @@
 <script src="scriptDAO.js"></script>
 <script src="url.js"></script>
 <script src="util.js"></script>
-<script src="codemirror/codemirror.js"></script>
+<script src="codemirror.js"></script>
 <style>
   /* see http://code.google.com/p/chromium/issues/detail?id=26152 */
-  html { width: 300px; height: 300px;}
-  body { overflow: hidden; border: 0px; width: 300px; height: 300px; margin: 0px 0px 10px;}
-  div#wrapper {height: 100%; width: 100%; border-radius: 6px; border: 1px solid #DDD; background-color: #EEE; margin: 0; padding: 0; overflow:hidden;}
+  html { width: 300px; height: 300px; }
+  body { overflow: hidden; border: 0px; width: 300px; height: 300px; margin: 0px 0px 10px; }
+  div#wrapper {height: 100%; width: 100%; border-radius: 6px; border: 1px solid #DDD; background-color: #EEE; margin: 0; padding: 0; overflow:hidden; }
   body iframe{ border: 0px;}
   a,a:visited { color: #00b; }
   textarea { width: 97.5%; }
   .debug { display: none; }
   #scopeZone { margin-bottom: 7px;height: 50px; margin-top: 7px; }
-  #scopeDisplay { float: left; line-height: 1em;text-overflow:ellipsis; height: 14px;margin-bottom: 3px; padding: 5px; font-size: 12px; width:96.75%; white-space: nowrap; overflow:hidden;}
+  #scopeDisplay { float: left; line-height: 1em;text-overflow:ellipsis; height: 14px;margin-bottom: 3px; padding: 5px; font-size: 12px; width:96.75%; white-space: nowrap; overflow:hidden; }
   #scopeDisplay { background: #FFF;}
-  .scopeLevels { list-style: none; clear: left; margin: 0px; width: 100%; height: 24px; margin-top: 2px; padding: 0px; background-color: #DDD;}
-  .scopeLevel {float:left;position: relative;display:block;cursor:pointer;color:#222;padding: 3px 10px 2px 16px;background-color:#DDD;margin: 0px 0px 0px 0px;}
+  .scopeLevels { list-style: none; clear: left; margin: 0px; width: 100%; height: 24px; margin-top: 2px; padding: 0px; background-color: #DDD; }
+  .scopeLevel {float:left;position: relative;display:block;cursor:pointer;color:#222;padding: 3px 10px 2px 16px;background-color:#DDD;margin: 0px 0px 0px 0px; }
   .scopeLevel:first-child{padding-left: 6px;}
-  .scopeLevel:after{content: " ";width: 0;height: 0;display:block;position:absolute;right:-11px;top:0;border-top: 11px solid transparent;border-bottom: 11px solid transparent;border-left: 11px solid #DDD;z-index: 100;}
+  .scopeLevel:after{content: " ";width: 0;height: 0;display:block;position:absolute;right:-11px;top:0;border-top: 11px solid transparent;border-bottom: 11px solid transparent;border-left: 11px solid #DDD;z-index: 100; }
   .scopeLevel:hover{ color: #111; background-color: #BBB;}
-  .scopeLevel:hover:after{border-left: 11px solid #BBB!important;}
+  .scopeLevel:hover:after{border-left: 11px solid #BBB!important; }
   .active { background: #68E; text-decoration: none; color: #FFF; }
-  .scopeLevel.active:after{border-left: 11px solid #68E;}
-  .scopeLevel:nth-child(n+2):before{content:" ";display:block;position:absolute;left:1px;top:0;border-top: 11px solid transparent;border-bottom: 11px solid transparent;border-left: 11px solid #EEE;width:0;height:0;z-index: 50;}
+  .scopeLevel.active:after{border-left: 11px solid #68E; }
+  .scopeLevel:nth-child(n+2):before{content:" ";display:block;position:absolute;left:1px;top:0;border-top: 11px solid transparent;border-bottom: 11px solid transparent;border-left: 11px solid #EEE;width:0;height:0;z-index: 50; }
   .undefined { font-style: italic;}
-  .defined { font-style: normal;}
-  #scriptTypes {float:left; clear:both; width: 94%; padding-left: 13px;}
+  .defined { font-style: normal; }
+  #scriptTypes {float:left; clear:both; width: 94%; padding-left: 13px; }
   #scriptTypes a { float: right; margin-right: 3%;}
   .scriptType { background: #bbb; padding: 2px 4px; border-bottom-color: white; z-index: 100; margin-right: 5px; cursor: pointer; border: 1px solid #666; display: inline; position: relative; opacity: 0.5; top: 0; }
-  .scriptType.active { background: white; cursor: default; opacity: 1; background: #68E; color: #FFF; padding: 2px 4px;}
+  .scriptType.active { background: white; cursor: default; opacity: 1; background: #68E; color: #FFF; padding: 2px 4px; }
   .active .openBorder { background: #68E; z-index: 400; color: #FFF; }
   .openBorder { position: absolute; bottom: -1; height: 1px; width: 100%; background: #666; z-index: 200; border-left: 1px solid #666; border-right: 1px solid #666; }
-  textarea, textarea:focus {outline: 0;}
-  .CodeMirror-wrapping{border: 1px solid #CCC; background: #FFF; width: 96%;margin: 27px 2% 0px 2%; border-radius: 6px;}
+  textarea, textarea:focus {outline: 0; }
+  .CodeMirror-wrapping{border: 1px solid #CCC; background: #FFF; width: 96%;margin: 27px 2% 0px 2%; border-radius: 6px; }
 </style>
 <script>
+
+var editor;
+
 if (!localStorage["scopeLevel"]) localStorage["scopeLevel"] = "all";
 if (!localStorage["scriptType"]) localStorage["scriptType"] = "js";
 
 $(function() {
-  $(".scriptType").each(function() {
-    $("<div class='openBorder' />").appendTo(this);
+
+  editor = CodeMirror.fromTextArea('code', {
+    path: 'codemirror/',
+    basefiles: ["codemirror-base.min.js"],
+    stylesheet: ['codemirror/jscolors.css', 'codemirror/csscolors.css'],
+    height: '190px',
+    saveFunction: save, // map cmd+s to the save button's function
+    autoMatchParens: true, // auto insert parens where needed
+    onLoad: setupPageUpdating
   });
+
   $(".scopeLevel").click(function() {
     updateScopeLevel($(this).attr("id"));
+    editor.focus();
   });
+
   $(".scriptType").click(function() {
     updateScriptType($(this).attr("id"));
+    editor.focus();
   });
+
 });
 
 function onPageChange(page) {
@@ -75,10 +90,10 @@ function repaint() {
   
   $("#scopeDisplay").html(scopeLevel=="all" ? "all sites" : (scopeLevel=="host" ? currentPage.getHost() : currentPage.getURL()));
   $(".scopeLevel[id="+scopeLevel+"]").addClass("active");
-  getEditor().setCode(scriptDAO.load(localStorage["scriptType"], getScope())||"");
+  editor.setCode(scriptDAO.load(localStorage["scriptType"], getScope())||"");
   
   $(".scriptType[id="+scriptType+"]").addClass("active");
-  getEditor().setCode(scriptDAO.load(localStorage["scriptType"], getScope())||"");
+  editor.setCode(scriptDAO.load(localStorage["scriptType"], getScope())||"");
   
   $(".scopeLevel").each(function(i, aScopeLevel) {
     $(this).classIf(scriptDAO.defined(scriptType, getScope(aScopeLevel.id)),
@@ -91,11 +106,11 @@ function repaint() {
   });
   
   //force a re-highlight of the new loaded code.
-  getEditor().editor.highlightDirty();
+  editor.editor.highlightDirty();
 }
 
 function save() {
-  scriptDAO.save(getEditor().getCode(), localStorage["scriptType"], getScope());
+  scriptDAO.save(editor.getCode(), localStorage["scriptType"], getScope());
   repaint();
 }
 function getScope(scopeLevel) {
@@ -104,33 +119,6 @@ function getScope(scopeLevel) {
 }
 function log(m) {
   console.log(m);
-}
-
-/**
- * Private variable for the editor
- * @private
- */
-var editor_ = null;
-
-/**
- * function accessor for the codemirror editor. gets created on the fly, and maintain's it's
- * singltonnyness.
- * @return {Object} A Codemirror Editor that is bound to the #code textarea.
- */
-function getEditor(){
-    if(editor_ === null){
-        editor_ = CodeMirror.fromTextArea('code', {
-            height: '190px',
-            parserfile: ["parsecss.js", "tokenizejavascript.js", "parsejavascript.js"],
-            stylesheet: ['css/jscolors.css', 'css/csscolors.css'],
-            path: 'codemirror/', //location of the extra js source
-            saveFunction: save, //map cmd+s to the save button's function
-            autoMatchParens: true //auto insert parens where needed
-        });
-        return editor_;
-    } else{
-        return editor_;
-    }
 }
 
 </script>
@@ -148,8 +136,12 @@ function getEditor(){
   </div>
   
   <div id="scriptTypes" class="zone">
-    <span id="js" class="scriptType active">Javascript</span>
-    <span id="css" class="scriptType">CSS</span>
+    <div id="js" class="scriptType active">Javascript
+      <div class="openBorder"></div>
+    </div>
+    <div id="css" class="scriptType">CSS
+      <div class="openBorder"></div>
+    </div>
     <a target="options" href="options.html">manage&nbsp;all</a>
   </div>
   <textarea id="code"></textarea>
