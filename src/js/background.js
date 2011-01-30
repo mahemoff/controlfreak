@@ -1,9 +1,3 @@
-<script src="underscore-min.js"></script>
-<script src="jquery-1.4.2.min.js"></script>
-<script src="jquery.url.js"></script>
-<script src="url.js"></script>
-<script src="scriptDAO.js"></script>
-<script>
 chrome.extension.onRequest.addListener(function(req, sender, sendResponse) {
   var page = new Page(req);
   sendResponse({jsScripts: composeScripts(page, "js"),
@@ -16,4 +10,3 @@ function composeScripts(page, scriptType) {
     .reject(function(script) { return _.isEmpty(script); })
     .value();
 }
-</script>

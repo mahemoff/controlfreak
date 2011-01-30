@@ -1,0 +1,10 @@
+h1,h2,h3 { margin: 0; font-weight: bold; }
+h3 { margin-bottom: 0.5em; }
+body { margin: 1em; }
+a,a:visited { color: #00b; }
+.template { display: none; }
+#controls { margin: 1em 0; }
+li { margin: 0 0 0.5em; display: block; }
+pre { border-radius: 10px; background: #e2e2e9; float: left; padding: 10px; }
+.scriptType { font-size: x-small; background: #cfc; padding: 2px; }
+.clearance { clear: left; }

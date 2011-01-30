@@ -1,0 +1,20 @@
+<script src="../lib/jquery-1.4.2.min.js"></script>
+<script src="../lib/underscore-min.js"></script>
+<script src="js/util.js"></script>
+<script src="js/scriptDAO.js"></script>
+<script src="js/scripts.js"></script>
+<link rel="stylesheet" href="css/reset.css" />
+<link rel="stylesheet" href="css/scripts.css" />
+
+<h1>Control Freak Scripts</h1>
+
+<div id="controls"><button id="clear">Clear All Scripts</button> <button id="refresh">Refresh Display</button></div>
+
+<ul id="scripts">
+</ul>
+
+<textarea class="template" id="scriptTemplate">
+  <h3><%= renderScope(scope) %> <span class='scriptType'><%= scriptType.toUpperCase() %></span></h3>
+  <pre><%= text %></pre>
+  <div class="clearance">&nbsp;</div>
+</textarea>

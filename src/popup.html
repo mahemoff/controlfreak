@@ -1,0 +1,38 @@
+<html>
+<head>
+<script src="../lib/jquery-1.4.2.min.js"></script>
+<script src="../lib/jquery.url.js"></script>
+<script src="../lib/underscore-min.js"></script>
+<script src="../lib/codemirror/codemirror.js"></script>
+<script src="js/scriptDAO.js"></script>
+<script src="js/url.js"></script>
+<script src="js/util.js"></script>
+<script src="js/popup.js"></script>
+<link rel="stylesheet" href="css/popup.css" />
+</head>
+<body>
+<div id="wrapper">
+  <a target="x" class="debug" href="chrome-extension://flbbllfioochfjaefcnhjiddnjnbkbno/popup.html">debug</a>
+  <div id="scopeZone" class="zone">
+    <ul class="scopeLevels">
+      <li id="all" class="scopeLevel">All</li>
+      <li id="host" class="scopeLevel">This&nbsp;Domain</li>
+      <li id="url" class="scopeLevel">This&nbsp;Page</li>
+    </ul>
+    <div id="scopeDisplay"></div>
+  </div>
+  
+  <div id="scriptTypes" class="zone">
+    <div id="js" class="scriptType active">Javascript
+      <div class="openBorder"></div>
+    </div>
+    <div id="css" class="scriptType">CSS
+      <div class="openBorder"></div>
+    </div>
+    <a target="options" href="scripts.html">manage&nbsp;all</a>
+  </div>
+  <textarea id="code"></textarea>
+  <button onclick="save(); return false;">Save</button>
+</div> 
+</body>
+</html>
