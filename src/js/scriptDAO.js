@@ -1,30 +1,32 @@
 scriptDAO = {
   clear: function() {
     for (key in localStorage) {
-      if (/^(js|css)-/.test(key)) delete localStorage[key];
+      if (/^(js|css|libs)-/.test(key)) delete localStorage[key];
     }
   },
-  save: function(script, scriptType, scope) {
-    localStorage[scriptType+"-"+scope] = script;
+  save: function(val, scriptType, scope) {
+    if (_(val).isEmpty())
+      delete localStorage[scriptType+"-"+scope];
+    else 
+      localStorage[scriptType+"-"+scope] = JSON.stringify(val);
   },
   load: function(scriptType, scope) {
-    return localStorage[scriptType+"-"+scope];
+    return parse(localStorage[scriptType+"-"+scope]);
   },
   all: function() {
     var scripts = [];
     for (var key in localStorage) {
-      var matches = key.match(/^(js|css)-(.+)/);
+      var matches = key.match(/^(js|css|libs)-(.+)/);
 
       if (matches) {
 
-        console.log("key", key, "--", localStorage[key]);
         if (! $.trim(localStorage[key]).length)
           delete localStorage[key];
         else
           scripts.push({
             scriptType: matches[1],
             scope: matches[2],
-            text: localStorage[key]
+            text: JSON.stringify(localStorage[key]) // TODO "text"->"val"
           });
       }
     }
@@ -40,12 +42,15 @@ scriptDAO = {
     return scripts;
   },
   defined: function(scriptType, scope) {
-    return localStorage[scriptType+"-"+scope] ? true : false;
+    return parse(localStorage[scriptType+"-"+scope]) ? true : false;
   }
 };
 if (!localStorage["js"]) localStorage["js"] = [];
 if (!localStorage["css"]) localStorage["css"] = [];
+if (!localStorage["libs"]) localStorage["libs"] = [];
 
 function isURL(s) {
   return /^(http|https|file):\/\//.test(s);
 }
+
+function parse(o) { return o ? JSON.parse(o) : null; }

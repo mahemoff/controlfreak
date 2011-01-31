@@ -18,7 +18,7 @@
   "background_page": "src/background.html",
   "content_scripts": [{
     "matches": ["*://*/*"],
-    "js": ["lib/underscore-min.js", "src/js/content.js"]
+    "js": ["lib/require.js", "lib/underscore-min.js", "src/js/content.js"]
   }],
 
   "permissions": ["tabs"]
