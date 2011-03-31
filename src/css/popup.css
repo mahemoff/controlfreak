@@ -1,4 +1,4 @@
-.debug { display: none; }
+.debug { display: block; }
 
 /* see http://code.google.com/p/chromium/issues/detail?id=26152 */
 html { width: 500px; height: 350px; }
@@ -26,12 +26,13 @@ a,a:visited { color: #00b; }
 
 #tabs {float:left; clear:both; width: 95%; padding-left: 17px; }
 #tabs a { float: right; margin-right: 3%;}
-.tab { background: #bbb; padding: 2px 4px; border-bottom-color: white; z-index: 100; margin-right: 5px; cursor: pointer; border: 1px solid #666; display: inline; position: relative; opacity: 0.5; top: 0; }
+.tab { background: #bbb; padding: 2px 4px; border-bottom-color: #ccc; z-index: 100; margin-right: 5px; cursor: pointer; border: 1px solid #666; display: inline; position: relative; opacity: 0.5; top: -3px; }
 .tab.active { background: white; cursor: default; opacity: 1; background: #68E; color: #FFF; padding: 2px 4px; }
 .active .openBorder { background: #68E; z-index: 400; color: #FFF; }
-.openBorder { position: absolute; bottom: -1; height: 1px; width: 100%; background: #666; z-index: 200; border-left: 1px solid #666; border-right: 1px solid #666; }
+.openBorder { position: absolute; bottom: -1; height: 1px; width: 100%; background: #999; z-index: 200; border-left: 1px solid #666; border-right: 1px solid #666; }
 
 #arena > * { border: 1px solid #CCC; background: #FFF; width: 96%; margin: 27px 2% 0px 2%; border-radius: 6px; }
+.codeMirror  { height: 200px; }
 #editLibs { background: #eee; padding: 2%; width: 92%; }
 #libsList { display: block; margin-top: 1em; width: 100%; height: 167px; border: 1px solid #bbb; border-radius: 4px; }
 

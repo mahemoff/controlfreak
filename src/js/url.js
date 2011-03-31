@@ -6,7 +6,12 @@ Page.prototype.getURL = function() {
   return this.url;
 }
 Page.prototype.getHost = function() {
-  return this.url ? jQuery.url.setUrl(this.url).attr("host") : null;
+  if (!this.url) return null;
+  var url = jQuery.url.setUrl(this.url);
+  var host = url.attr("host");
+  if (url.attr("protocol") && url.attr("protocol")!="http") host = url.attr("protocol")+"://" + host;
+  if (url.attr("port")) host = host + ":" + url.attr("port");
+  return this.url ? host : null;
 }
 Page.prototype.getSummaryURL = function() {
   return this.url.substr(15);

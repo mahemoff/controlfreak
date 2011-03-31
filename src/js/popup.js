@@ -17,18 +17,16 @@ $(function() {
 
   setupEditor();
   setupLibs();
+  setupPageUpdating();
+  repaint();
 
 });
 
 function setupEditor() {
-  editor = CodeMirror.fromTextArea("code", {
-    basefiles: ["../lib/codemirror/codemirror-base.min.js"],
-    stylesheet: ["../lib/codemirror/jscolors.css",
-                 "../lib/codemirror/csscolors.css"],
+  editor = CodeMirror.fromTextArea($("#code").get(0), {
     height: "220px",
     saveFunction: save, // map cmd+s to the save button's function
-    autoMatchParens: true, // auto insert parens where needed
-    onLoad: setupPageUpdating
+    matchBrackets: true // auto insert parens where needed
   });
 }
 
@@ -71,7 +69,7 @@ function repaint() {
   
   $("#scopeDisplay").html(scopeLevel=="all" ? "all sites" : (scopeLevel=="host" ? currentPage.getHost() : currentPage.getURL()));
   $(".scopeLevel[id="+scopeLevel+"]").addClass("active");
-  editor.setCode(scriptDAO.load(localStorage["scriptType"], getScope())||"");
+  editor.setValue(scriptDAO.load(localStorage["scriptType"], getScope())||"");
   
   $(".tab[id="+tab+"]").addClass("active");
   if (tab == "libs") {
@@ -86,17 +84,14 @@ function repaint() {
 
 function repaintLibs() {
   $("#editLibs").radio();
-  $("#newLib").empty();
   $("#popularLibs").val("");
   $("#libsList").val((scriptDAO.load("libs", getScope())||[]).join("\n"));
 }
 
 function repaintEditor() {
-  $(editor.wrapping).radio();
-  // $(".CodeMirror-wrapping").show();
+  $(".CodeMirror").radio();
   editor.focus();
-  editor.editor.highlightDirty(); // re-highlight new loaded code.
-  editor.setCode(scriptDAO.load(localStorage["tab"], getScope())||"");
+  editor.setValue(scriptDAO.load(localStorage["tab"], getScope())||"");
 }
 
 function repaintPresenceIndicators(tab, scopeLevel) {
@@ -119,7 +114,7 @@ function save() {
     var libs = libsList.length ? libsList.split(/[ \t\n]+/) : [];
     scriptDAO.save(libs, "libs", getScope());
   } else {
-    scriptDAO.save(editor.getCode(), localStorage["tab"], getScope());
+    scriptDAO.save(editor.getValue(), localStorage["tab"], getScope());
   }
   repaint();
 }
