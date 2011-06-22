@@ -3,7 +3,7 @@ $(function() {
     if (!confirm("THIS IS SERIOUS MUM!!!\n"+
        "You're about to delete all of your Control Freak scripts PERMANENTLY."))
        return;
-    for (key in localStorage) delete localStorage[key];
+    scriptDAO.clear();
     repaint();
   });
   $("#refresh").click(repaint);
