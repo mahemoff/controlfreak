@@ -4,6 +4,10 @@ scriptDAO = {
       if (/^(js|css|libs)-/.test(key)) delete localStorage[key];
     }
   },
+  rm: function(scriptType, scope) {
+    if (this.defined(scriptType, scope))
+      delete localStorage[scriptType+"-"+scope];
+  },
   save: function(val, scriptType, scope) {
     if (_(val).isEmpty())
       delete localStorage[scriptType+"-"+scope];
