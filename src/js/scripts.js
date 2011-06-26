@@ -3,7 +3,7 @@ $(function() {
     if (!confirm("THIS IS SERIOUS MUM!!!\n"+
        "You're about to delete all of your Control Freak scripts PERMANENTLY."))
        return;
-    for (key in localStorage) delete localStorage[key];
+    scriptDAO.clear();
     repaint();
   });
   $("#refresh").click(repaint);
@@ -12,10 +12,20 @@ $(function() {
 
 function repaint() {
   var scriptTemplate = _.template($("#scriptTemplate").val());
-  $("ul").empty();
+  var script_ul = $("ul#scripts").empty();
   _(scriptDAO.all()).each(function(script) {
-    $("<li>").html(scriptTemplate(script)).appendTo("ul");
+    var list_item = $("<li/>").html(scriptTemplate(script));
+    list_item.children("a.delete").click(
+      _.bind(item_delete_handler, script));
+    list_item.children("a.preview").click(
+      _.bind(function(){$(this).children('pre').slideToggle();}, list_item));
+    list_item.appendTo(script_ul);
   });
+}
+
+function item_delete_handler() {
+  scriptDAO.rm(this.scriptType, this.scope);
+  repaint();
 }
 
 function renderScope(scope) {
