@@ -23,11 +23,19 @@ $(function() {
 });
 
 function setupEditor() {
+  
   editor = CodeMirror.fromTextArea($("#code").get(0), {
-    height: "220px",
+    mode: translatedScriptType(),
+    height: "200px",
+    tabMode: "indent",
     saveFunction: save, // map cmd+s to the save button's function
-    matchBrackets: true // auto insert parens where needed
+    matchBrackets: true, // auto insert parens where needed
+    lineNumbers: true
   });
+}
+
+function translatedScriptType() {
+  return localStorage["tab"] === "js" ? "javascript" : "css"
 }
 
 function setupLibs() {
@@ -67,6 +75,8 @@ function repaint() {
   $(".active").removeClass("active");
   var scopeLevel=localStorage["scopeLevel"], tab=localStorage["tab"];
   
+  editor.setOption("mode", translatedScriptType() );
+
   $("#scopeDisplay").html(scopeLevel=="all" ? "all sites" : (scopeLevel=="host" ? currentPage.getHost() : currentPage.getURL()));
   $(".scopeLevel[id="+scopeLevel+"]").addClass("active");
   editor.setValue(scriptDAO.load(localStorage["scriptType"], getScope())||"");
