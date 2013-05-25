@@ -1,6 +1,8 @@
 body { margin: 1em; font-family: "Helvetica Neue", Helvetica;}
 #controls { margin: 1em 0; }
 
+label { display: block; font-size: 14px; margin: 4px 0; }
+
 h1{ color: #333; font-size: 2.25em; font-weight: 100;}
 a,a:visited { color: #00b; }
 
@@ -9,7 +11,7 @@ a,a:visited { color: #00b; }
 li { margin: 0 0 0.5em; display: block; width: 550px; padding: 5px; height: 18px; }
 li h3 { float: left; margin-right: 12px; line-height: 20px; height: 20px;}
 li h3 span.scriptType { font-size: x-small; background: #cfc; padding: 2px; }
-li pre { font-family: Andale Mono, monospace; font-size: 0.75em; clear: left; border-radius: 5px; position: relative; top: 8px; background: #b2b2b9; color:#333; padding: 10px; white-space: pre-wrap; width: 530px; display: none; z-index: 5000; }
+li pre { font-family: Andale Mono, monospace; font-size: 0.75em; clear: left; border-radius: 5px; position: relative; top: 8px; background: #b2b2b9; color:#333; padding: 10px; white-space: pre-wrap; width: 530px; z-index: 5000; }
 li a.delete, li a.preview { display: block; float: right; margin-left: 6px; padding: 3px 9px; line-height: 16px; background-color: #EEE; border-radius: 6px; text-decoration: none;}
 li a.delete:hover, li a.preview:hover{ background-color:#b2b2b9; }
 li a.delete {color: #B33;}

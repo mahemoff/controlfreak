@@ -79,54 +79,69 @@ function repaint() {
 
   $("#scopeDisplay").html(scopeLevel=="all" ? "all sites" : (scopeLevel=="host" ? currentPage.getHost() : currentPage.getURL()));
   $(".scopeLevel[id="+scopeLevel+"]").addClass("active");
-  editor.setValue(scriptDAO.load(localStorage["scriptType"], getScope())||"");
-  
-  $(".tab[id="+tab+"]").addClass("active");
-  if (tab == "libs") {
-    repaintLibs();
-  } else {
-    repaintEditor();
-  }
 
-  repaintPresenceIndicators();
+  scriptDAO.load(localStorage["scriptType"], getScope(), function (contents) {
+    editor.setValue(contents||"");
   
+    $(".tab[id="+tab+"]").addClass("active");
+    if (tab == "libs") {
+      repaintLibs();
+    } else {
+      repaintEditor();
+    }
+
+    repaintPresenceIndicators();
+  });
 }
 
 function repaintLibs() {
   $("#editLibs").radio();
   $("#popularLibs").val("");
-  $("#libsList").val((scriptDAO.load("libs", getScope())||[]).join("\n"));
+
+  scriptDAO.load("libs", getScope(), function (contents) {
+    $("#libsList").val(contents||[]).join("\n");
+  });
 }
 
 function repaintEditor() {
   $(".CodeMirror").radio();
   editor.focus();
-  editor.setValue(scriptDAO.load(localStorage["tab"], getScope())||"");
+
+  scriptDAO.load(localStorage["tab"], getScope(), function (contents) {
+    editor.setValue(contents||"");
+  });
 }
 
 function repaintPresenceIndicators(tab, scopeLevel) {
   // TODO maybe change this to show if any? are relevant
   $(".scopeLevel").each(function(i, aScopeLevel) {
-    $(this).classIf(scriptDAO.defined(tab, getScope(aScopeLevel.id)),
-      "defined", "undefined");
+    var el = $(this);
+    scriptDAO.defined(tab, getScope(aScopeLevel.id), function (defined) {
+      el.classIf(defined, "defined", "undefined");
+    });
   });
 
   $(".tab").each(function(i, aScriptType) {
-    $(this).classIf(scriptDAO.defined(aScriptType.id, getScope()),
-      "defined", "undefined");
+    var el = $(this);
+    scriptDAO.defined(aScriptType.id, getScope(), function (defined) {
+      el.classIf(defined, "defined", "undefined");
+    });
   });
 }
 
 // only need to save current tab, since switching tab forces a save
 function save() {
+  var saveData;
+
   if (localStorage["tab"]=="libs") {
     var libsList = $.trim($("#libsList").val());
     var libs = libsList.length ? libsList.split(/[ \t\n]+/) : [];
-    scriptDAO.save(libs, "libs", getScope());
+    saveData = [libs, "libs", getScope()];
   } else {
-    scriptDAO.save(editor.getValue(), localStorage["tab"], getScope());
+    saveData = [editor.getValue(), localStorage["tab"], getScope()];
   }
-  repaint();
+
+  scriptDAO.save.apply(scriptDAO, saveData.concat(repaint));
 }
 
 function getScope(scopeLevel) {
