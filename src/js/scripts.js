@@ -8,6 +8,8 @@ $(function() {
   });
   $("#refresh").click(repaint);
   repaint();
+
+  window.addEventListener("storage", repaint, false);
 });
 
 function repaint() {
