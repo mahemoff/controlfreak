@@ -26,11 +26,13 @@
       "src/js/background.js"
     ]
   },
+  "options_page": "src/scripts.html",
 
   "content_scripts": [{
     "matches": ["*://*/*"],
     "js": ["lib/require.js", "lib/underscore-min.js", "src/js/content.js"]
   }],
 
-  "permissions": ["tabs"]
+  "permissions": ["tabs"],
+  "optional_permissions": ["storage"]
 }
