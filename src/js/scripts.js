@@ -10,22 +10,44 @@ $(function() {
   $("#refresh").click(repaint);
   repaint();
 
-  window.addEventListener("storage", repaint, false);
+  $("#quota").html(chrome.storage.sync.QUOTA_BYTES_PER_ITEM);
 
-  $("#sync").click(function () {
+  var syncCheckbox = $("#sync");
+  if (localStorage.getItem("storage_option") === "sync")
+    syncCheckbox.prop("checked", true);
+
+  syncCheckbox.click(function () {
+    var syncState = this.checked;
+
     chrome.permissions.request({
       permissions: ["storage"]
-    }, function () {
-      console.log(arguments);
-//       chrome.storage.sync.get("smth", function (obj) {
-//   console.log(obj)
-// })
-      chrome.storage.onChanged.addListener(function (changes, areaName) {
-        console.log([areaName, changes]);
+    }, function (granted) {
+      if (!granted)
+        return;
+
+      localStorage.setItem("storage_option", syncState ? "sync" : "local");
+      scriptDAO.changeSyncState(syncState, function () {
+        repaint();
+        listenToStorageChanges();
       });
-    })
+    });
   });
+
+  listenToStorageChanges();
 });
+
+// listen to chrome.storage and localStorage changes
+function listenToStorageChanges() {
+  window.removeEventListener("storage", repaint, false);
+  try {
+    chrome.storage.onChanged.removeListener(repaint);
+  } catch (ex) {}
+
+  window.addEventListener("storage", repaint, false);
+  try {
+    chrome.storage.onChanged.addListener(repaint);
+  } catch (ex) {}
+}
 
 function repaint() {
   var scriptTemplate = _.template($("#scriptTemplate").val());

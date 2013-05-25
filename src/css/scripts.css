@@ -1,6 +1,8 @@
 body { margin: 1em; font-family: "Helvetica Neue", Helvetica;}
 #controls { margin: 1em 0; }
 
+label { display: block; font-size: 14px; margin: 4px 0; }
+
 h1{ color: #333; font-size: 2.25em; font-weight: 100;}
 a,a:visited { color: #00b; }
 

@@ -14,7 +14,7 @@ var syncStorageProto = {
       });
 
       dao.storageArea = enable ? "sync" : "local";
-      dao.save(tweaks, callback);
+      dao.save(tweaksMap, callback);
     });
   },
 
@@ -99,7 +99,7 @@ var localStorageProto = {
     // create temporary array of existing tweaks
     this.all(function (tweaks) {
       dao.__proto__ = syncStorageProto;
-      dao.changeSyncState(true);
+      dao.storageArea = "sync";
 
       // copy tweaks from localStorage to chrome.storage.sync
       var tweaksMap = Object.create(null);
@@ -110,7 +110,7 @@ var localStorageProto = {
         tweaksMap[tweakData.scriptType+"-"+tweakData.scope] = tweakData.text;
       });
 
-      dao.save(tweaks, callback);
+      dao.save(tweaksMap, callback);
     });
   },
 
