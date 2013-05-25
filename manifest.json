@@ -2,6 +2,7 @@
   "name": "Control Freak",
   "version": "1.1",
   "manifest_version": 2,
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "description": "Greasemonkey-like mods, but quicker to tweak",
   "icons": { 
     "16":  "images/system16.png",
@@ -18,7 +19,7 @@
   "background": {
     "scripts": [
       "lib/underscore-min.js",
-      "lib/jquery-1.4.2.min.js",
+      "lib/jquery-2.0.0.min.js",
       "lib/jquery.url.js",
       "src/js/url.js",
       "src/js/scriptDAO.js",
