@@ -1,8 +1,7 @@
-This is a Chrome extension which supports lightweight page hacking,
+(NOTE: Moved to https://github.com/1999/controlfreak) This is a Chrome extension which supports lightweight page hacking,
 similar to GreaseMonkey in some respects.
 
-You get a browser action (toolbar button) which lets you edit JS or CSS for
-all web pages; the current domain; or the current page.
+<h1>Moved to https://github.com/1999/controlfreak</h1>
 
-Install it at:
+Install the extension at:
 https://chrome.google.com/webstore/detail/jgnchehlaggacipokckdlbdemfeohdhc
