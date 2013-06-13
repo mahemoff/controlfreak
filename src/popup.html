@@ -1,11 +1,15 @@
 <html>
 <head>
+  <title>Control freak popup window</title>
   <script src="../lib/codemirror/codemirror.js"></script>
   <script src="../lib/codemirror/javascript.js"></script>
   <script src="../lib/codemirror/css.js"></script>
 
-  <script src="js/scriptDAO.js"></script>
+  <script src="js/config.js"></script>
   <script src="js/dom.js"></script>
+
+  <script src="js/scriptDAO.js"></script>
+  
   <script src="js/url.js"></script>
   <script src="js/popup.js"></script>
 
@@ -15,7 +19,6 @@
 </head>
 <body>
 <div id="wrapper">
-  <a target="x" class="debug" href="popup.html">debug</a>
   <div id="scopeZone" class="zone">
     <ul class="scopeLevels">
       <li id="all" class="scopeLevel">All</li>
@@ -26,16 +29,21 @@
   </div>
   
   <div id="tabs" class="zone">
-    <div id="js" class="tab scriptType active">Javascript
+    <div id="js" class="tab scriptType active">
+      Javascript
       <div class="openBorder"></div>
     </div>
-    <div id="css" class="tab scriptType">CSS
+    <div id="css" class="tab scriptType">
+      CSS
       <div class="openBorder"></div>
     </div>
-    <div id="libs" class="tab">Libs
+    <div id="libs" class="tab">
+      Libs
       <div class="openBorder"></div>
     </div>
-    <a target="options" href="scripts.html">manage&nbsp;all</a>
+
+    <a target="_blank" class="hidden" href="popup.html">debug</a>
+    <a target="_blank" href="scripts.html">manage all</a>
   </div>
   <div id="arena">
     <textarea id="code"></textarea>

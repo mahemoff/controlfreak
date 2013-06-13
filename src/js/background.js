@@ -1,4 +1,4 @@
-chrome.extension.onRequest.addListener(function(req, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function (req, sender, sendResponse) {
   var page = new Page(req);
 
   asyncParallel({

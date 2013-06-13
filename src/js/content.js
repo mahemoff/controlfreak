@@ -1,4 +1,4 @@
-chrome.extension.sendRequest(document.location.href, function(response) {
+chrome.runtime.sendMessage(document.location.href, function (response) {
   require(response.libs, function () {
     response.jsScripts.forEach(function (script) {
       var scriptTag = document.createElement("script");

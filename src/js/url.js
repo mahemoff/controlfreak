@@ -19,25 +19,5 @@ Page.prototype.getHost = function() {
   if (url.attr("port")) host = host + ":" + url.attr("port");
   return this.url ? host : null; */
 }
-Page.prototype.getSummaryURL = function() {
-  return this.url.substr(15);
-}
 
 var currentPage = new Page();
-
-function setupPageUpdating() {
-
-  chrome.tabs.getSelected(null, function(tab) {
-    currentPage = new Page(tab.url);
-    if (typeof(onPageChange)!="undefined") onPageChange(currentPage);
-  });
-
-  chrome.tabs.onActivated.addListener(function (activeInfo) {
-    chrome.tabs.get(activeInfo.tabId, function (tab) {
-      currentPage = new Page(tab.url);
-      if (typeof(onPageChange)!="undefined")
-        onPageChange(currentPage);
-    });
-  });
-
-}
