@@ -1,8 +1,0 @@
-This is a Chrome extension which supports lightweight page hacking,
-similar to GreaseMonkey in some respects.
-
-You get a browser action (toolbar button) which lets you edit JS or CSS for
-all web pages; the current domain; or the current page.
-
-Install it at:
-https://chrome.google.com/webstore/detail/jgnchehlaggacipokckdlbdemfeohdhc
