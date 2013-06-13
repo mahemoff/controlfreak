@@ -148,15 +148,15 @@ var localStorageProto = {
       var matches = key.match(/^(js|css|libs)-(.+)/);
 
       if (matches) {
-
-        if (! $.trim(localStorage[key]).length)
+        if (!localStorage[key].trim().length) {
           delete localStorage[key];
-        else
+        } else {
           scripts.push({
             scriptType: matches[1],
             scope: matches[2],
             text: JSON.stringify(localStorage[key]) // TODO "text"->"val"
           });
+        }
       }
     }
     scripts.sort(function(scriptA, scriptB) {

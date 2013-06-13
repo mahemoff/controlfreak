@@ -1,5 +1,5 @@
-$(function() {
-  $("#clear").click(function() {
+document.addEventListener("DOMContentLoaded", function () {
+  $("#clear").bind("click", function () {
     if (!confirm("THIS IS SERIOUS MUM!!!\n"+
        "You're about to delete all of your Control Freak scripts PERMANENTLY."))
        return;
@@ -7,7 +7,7 @@ $(function() {
     scriptDAO.clear(repaint);
   });
 
-  $("#refresh").click(repaint);
+  $("#refresh").bind("click", repaint);
   repaint();
 
   $("#quota").html(chrome.storage.sync.QUOTA_BYTES_PER_ITEM);
@@ -16,7 +16,7 @@ $(function() {
   if (localStorage.getItem("storage_option") === "sync")
     syncCheckbox.prop("checked", true);
 
-  syncCheckbox.click(function () {
+  syncCheckbox.bind("click", function () {
     var syncState = this.checked;
 
     chrome.permissions.request({
@@ -34,7 +34,7 @@ $(function() {
   });
 
   listenToStorageChanges();
-});
+}, false);
 
 // listen to chrome.storage and localStorage changes
 function listenToStorageChanges() {
@@ -56,11 +56,16 @@ function repaint() {
   scriptDAO.all(function (tweaks) {
     _(tweaks).each(function(script) {
       var list_item = $("<li/>").html(scriptTemplate(script));
-      list_item.children("a.delete").click(
-        _.bind(item_delete_handler, script));
-      list_item.children("a.preview").click(
-        _.bind(function(){$(this).children('pre').slideToggle();}, list_item));
-      list_item.appendTo(script_ul);
+      $$(list_item, "a.delete").bind("click", item_delete_handler.bind(script));
+
+      $$(list_item, "a.preview").bind("click", function () {
+        $$(list_item, "pre").each(function () {
+          // @todo
+          this.toggleClass("hidden");
+        });
+      });
+
+      script_ul.append(list_item);
     });
   });
 }
@@ -70,7 +75,9 @@ function item_delete_handler() {
 }
 
 function renderScope(scope) {
-  if (scope=="*") return "All Websites";
-  return "<a href='"+
-         (isURL(scope) ? scope : "http://"+scope) + "'>"+summary(scope)+"</a>";
+  if (scope=="*")
+    return "All Websites";
+
+  var linkTitle = scopr.length < 50 ? scope : scope.substr(0,23) + "..." + scope.substr(scope.length-23);
+  return "<a href='"+(isURL(scope) ? scope : "http://"+scope) + "'>"+linkTitle+"</a>";
 }

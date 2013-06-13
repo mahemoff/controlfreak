@@ -3,28 +3,27 @@ var editor;
 if (!localStorage["scopeLevel"]) localStorage["scopeLevel"] = "all";
 if (!localStorage["tab"]) localStorage["tab"] = "js";
 
-$(function() {
-
-  $(".scopeLevel").click(function() {
-    updateScopeLevel($(this).attr("id"));
+document.addEventListener("DOMContentLoaded", function () {
+  var scopeLevels = $$(".scopeLevel");
+  scopeLevels && scopeLevels.bind("click", function () {
+    updateScopeLevel(this.id);
   });
 
-  $(".tab").click(function() {
-    updateTab($(this).attr("id"));
+  var tabs = $$(".tab");
+  tabs && tabs.bind("click", function () {
+    updateTab(this.id);
   });
 
-  $("#save").click(save);
+  $("#save").bind("click", save);
 
   setupEditor();
   setupLibs();
   setupPageUpdating();
   repaint();
-
-});
+}, false);
 
 function setupEditor() {
-  
-  editor = CodeMirror.fromTextArea($("#code").get(0), {
+  editor = CodeMirror.fromTextArea($("#code"), {
     mode: translatedScriptType(),
     height: "200px",
     tabMode: "indent",
@@ -39,22 +38,24 @@ function translatedScriptType() {
 }
 
 function setupLibs() {
-
-  $("#libsList").change(function() {
-  });
-  $("#libsList").keyup(function() { $(this).change(); });
-
-  $("#popularLibs").change(function() {
-    var libsList = ($("#libsList")).val();
-    if (libsList.length) libsList+="\n";
-    libsList+=$("#popularLibs").val();
-    $("#libsList").val(libsList);
+  $("#libsList").bind("keyup", function () {
+    // dispatch change event
   });
 
+  $("#popularLibs").bind("change", function () {
+    var libsList = $("#libsList");
+
+    var libsListValue = libsList.val();
+    if (libsListValue.length)
+      libsListValue+="\n";
+
+    libsListValue += this.val();
+    libsList.val(libsListValue);
+  });
 }
 
 function showLibs() {
-  $("#libs").show();
+  $("#libs").css("display", "block");
 }
 
 function onPageChange(page) {
@@ -95,16 +96,17 @@ function repaint() {
 }
 
 function repaintLibs() {
-  $("#editLibs").radio();
+  radio($("#editLibs"));
   $("#popularLibs").val("");
 
   scriptDAO.load("libs", getScope(), function (contents) {
-    $("#libsList").val(contents||[]).join("\n");
+    contents = contents || [];
+    $("#libsList").val(contents.join("\n"));
   });
 }
 
 function repaintEditor() {
-  $(".CodeMirror").radio();
+  radio($(".CodeMirror"));
   editor.focus();
 
   scriptDAO.load(localStorage["tab"], getScope(), function (contents) {
@@ -114,17 +116,31 @@ function repaintEditor() {
 
 function repaintPresenceIndicators(tab, scopeLevel) {
   // TODO maybe change this to show if any? are relevant
-  $(".scopeLevel").each(function(i, aScopeLevel) {
-    var el = $(this);
-    scriptDAO.defined(tab, getScope(aScopeLevel.id), function (defined) {
-      el.classIf(defined, "defined", "undefined");
+  $$(".scopeLevel").each(function () {
+    var el = this;
+
+    scriptDAO.defined(tab, getScope(this.id), function (defined) {
+      if (defined) {
+        el.addClass("defined");
+        el.removeClass("undefined");
+      } else {
+        el.addClass("defined");
+        el.removeClass("undefined");
+      }
     });
   });
 
-  $(".tab").each(function(i, aScriptType) {
-    var el = $(this);
-    scriptDAO.defined(aScriptType.id, getScope(), function (defined) {
-      el.classIf(defined, "defined", "undefined");
+  $$(".tab").each(function () {
+    var el = this;
+
+    scriptDAO.defined(this.id, getScope(), function (defined) {
+      if (defined) {
+        el.addClass("defined");
+        el.removeClass("undefined");
+      } else {
+        el.removeClass("defined");
+        el.addClass("undefined");
+      }
     });
   });
 }
@@ -134,7 +150,7 @@ function save() {
   var saveData;
 
   if (localStorage["tab"]=="libs") {
-    var libsList = $.trim($("#libsList").val());
+    var libsList = $("#libsList").val().trim();
     var libs = libsList.length ? libsList.split(/[ \t\n]+/) : [];
     saveData = [libs, "libs", getScope()];
   } else {
@@ -149,6 +165,12 @@ function getScope(scopeLevel) {
   return scopeLevel=="all" ? "*" : (scopeLevel=="host" ? currentPage.getHost() : currentPage.getURL());
 }
 
-function log(m) { console.log(m); }
-
-$.fn.radio = function() { $(this).show().siblings().hide(); }
+function radio(el) {
+  Array.prototype.forEach.call(el.parentNode.childNodes, function (elem) {
+    if (el === elem) {
+      el.css("display", "block");
+    } else {
+      el.css("display", "none");
+    }
+  });
+}
