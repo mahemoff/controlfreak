@@ -54,7 +54,7 @@ function repaint() {
   var script_ul = $("ul#scripts").empty();
 
   scriptDAO.all(function (tweaks) {
-    _(tweaks).each(function(script) {
+    tweaks.forEach(function (script) {
       var list_item = $("<li/>").html(scriptTemplate(script));
       $$(list_item, "a.delete").bind("click", item_delete_handler.bind(script));
 
