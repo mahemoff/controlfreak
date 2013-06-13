@@ -34,6 +34,6 @@ a,a:visited { color: #00b; }
 #arena > * { border: 1px solid #CCC; background: #FFF; width: 96%; margin: 27px 2% 0px 2%; border-radius: 6px; }
 .codeMirror  { height: 200px; }
 #editLibs { background: #eee; padding: 2%; width: 92%; }
-#libsList { display: block; margin-top: 1em; width: 100%; height: 167px; border: 1px solid #bbb; border-radius: 4px; }
+#libsList { resize: none; display: block; margin-top: 1em; width: 100%; height: 167px; border: 1px solid #bbb; border-radius: 4px; }
 
 #save { margin: 10px 0 0 10px; }

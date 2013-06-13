@@ -149,6 +149,12 @@ function repaintPresenceIndicators(tab, scopeLevel) {
 function save() {
   var saveData;
 
+  try {
+    xx();
+  } catch (ex) {
+    console.log(ex.stack);
+  }
+
   if (localStorage["tab"]=="libs") {
     var libsList = $("#libsList").val().trim();
     var libs = libsList.length ? libsList.split(/[ \t\n]+/) : [];

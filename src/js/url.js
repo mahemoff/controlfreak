@@ -32,10 +32,11 @@ function setupPageUpdating() {
     if (typeof(onPageChange)!="undefined") onPageChange(currentPage);
   });
 
-  chrome.tabs.onSelectionChanged.addListener(function(tabID, selectInfo) {
-    chrome.tabs.get(tabID, function(tab) {
+  chrome.tabs.onActivated.addListener(function (activeInfo) {
+    chrome.tabs.get(activeInfo.tabId, function (tab) {
       currentPage = new Page(tab.url);
-      if (typeof(onPageChange)!="undefined") onPageChange(currentPage);
+      if (typeof(onPageChange)!="undefined")
+        onPageChange(currentPage);
     });
   });
 

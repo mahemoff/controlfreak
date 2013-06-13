@@ -2,7 +2,7 @@
   "name": "Control Freak",
   "version": "2.0",
   "manifest_version": 2,
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "minimum_chrome_version" : 18,
   "description": "Greasemonkey-like mods, but quicker to tweak",
   "icons": { 
     "16":  "images/system16.png",
