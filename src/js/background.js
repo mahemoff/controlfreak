@@ -4,7 +4,8 @@ chrome.extension.onRequest.addListener(function(req, sender, sendResponse) {
   asyncParallel({
     libs: function (callback) {
       composeScripts(page, "libs", function (scripts) {
-        callback(null, _(scripts).flatten());
+        // @todo was: _(scripts).flatten()
+        callback(null, scripts);
       });
     },
     jsScripts: function (callback) {
@@ -41,7 +42,10 @@ function composeScripts(page, scriptType, callback) {
     }
   ], function (err, results) {
     results = results.filter(function (script) {
-      return !_.isEmpty(script);
+      // @todo can objects be here?
+      return (typeof script === "string" || string instanceof Array)
+        ? (string.length > 0)
+        : (Object.keys(string).length > 0);
     });
 
     callback(results);

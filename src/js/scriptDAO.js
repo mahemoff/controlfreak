@@ -31,12 +31,13 @@ var syncStorageProto = {
     });
   },
 
+  // @todo rework, val should be string
   save: function(val, scriptType, scope, callback) {
     if (arguments.length === 2)
       return chrome.storage[this.storageArea].set(arguments[0], callback);
 
     var key = scriptType+"-"+scope;
-    if (_(val).isEmpty()) {
+    if ((typeof val === "string" || val instanceof Array) && !val.length) {
       chrome.storage[this.storageArea].remove(key, callback);
     } else {
       var data = {};
@@ -129,13 +130,12 @@ var localStorageProto = {
     callback && callback();
   },
 
+  // @todo rework, val should be string
   save: function(val, scriptType, scope, callback) {
-    if (_(val).isEmpty())
+    if ((typeof val === "string" || val instanceof Array) && !val.length)
       delete localStorage[scriptType+"-"+scope];
-    else 
+    else
       localStorage[scriptType+"-"+scope] = JSON.stringify(val);
-
-    callback && callback();
   },
 
   load: function(scriptType, scope, callback) {
