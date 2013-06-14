@@ -30,6 +30,5 @@
     "js": ["lib/require.js", "src/js/content.js"]
   }],
 
-  "permissions": ["tabs"],
-  "optional_permissions": ["storage"]
+  "permissions": ["tabs", "storage"]
 }
