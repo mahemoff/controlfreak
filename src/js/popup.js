@@ -1,11 +1,137 @@
 document.addEventListener("DOMContentLoaded", function () {
+  var freaks = {};
+  var priority = ["page", "origin", "all"];
+  var scopes = ["js", "css", "libs"];
+
   // show debug link when needed
   if (config.DEBUG)
-    $("#tabs > a.hidden").removeClass("hidden");
+    $(".tabs-zone a.hidden").removeClass("hidden");
+
+  // bind change scopes handler
+  $$(".scope-zone [data-id]").bind("click", function () {
+    if (this.hasClass("active"))
+      return;
+
+    $$(this.parentNode, "li").removeClass("active");
+    this.addClass("active");
+
+    $("#scopeDisplay").text(this.data("title"));
+
+    var nonEmptyScope = null;
+    for (var i = 0; i < scopes.length; i++) {
+      if (freaks[scopes[i] + "_" + this.data("id")]) {
+        nonEmptyScope = scopes[i];
+        break;
+      }
+    }
+
+    nonEmptyScope = nonEmptyScope || "js";
+    $(".tabs-zone [data-id='" + nonEmptyScope + "']").click();
+  });
+
+  // bind change tabs handler
+  $$(".tabs-zone [data-id]").bind("click", function () {
+    if (this.hasClass("active"))
+      return;
+
+    $$(this.parentNode, "li").removeClass("active");
+    this.addClass("active");
+
+    var scope = $(".scope-zone .active").data("id");
+    var data = freaks[this.data("id") + "_" + scope];
+
+    if (this.data("id") === "libs") {
+      data = (data || []).join("\n");
+    } else {
+      data = data || "";
+    }
+
+    $(".arena-zone textarea").val(data);
+  });
+
+  // bind save action handler
+  $("#save").bind("click", function () {
+    var scope = $(".scope-zone .active").data("id");
+    var tab = $(".tabs-zone .active").data("id");
+    var areaData = $(".arena-zone textarea").val().trim();
+
+    var storageType = localStorage.type === "sync" ? "sync" : "local";
+    var storageKey = (scope === "all")
+      ? tab + "-*"
+      : tab + "-" + $("#scopeDisplay").text();
+
+    if (areaData.length) {
+      var saveData = {};
+      saveData[storageKey] = (tab === "libs")
+        ? areaData.split("\n")
+        : areaData;
+
+      chrome.storage[storageType].set(saveData);
+    } else {
+      chrome.storage[storageType].remove(storageKey);
+    }
+  });
 
   // update page properties
   chrome.tabs.getSelected(null, function (tab) {
+    var currentPageOrigin = $("<a/>").attr("href", tab.url).origin;
+    $(".scope-zone li[data-id='origin']").data("title", currentPageOrigin);
+    $(".scope-zone li[data-id='page']").data("title", tab.url);
+
+    // get all freaks for this page & select scope (all, origin, page) and tab (js, css, libs)
+    chrome.runtime.sendMessage({action: "search", url: tab.url}, function (res) {
+      // cache control freaks
+      freaks = res;
+
+      var freaksFound = false;
+      var key;
+
+      // @todo what if the tweak was made for index page?
+      stuff: {
+        for (var i = 0; i < priority.length; i++) {
+          for (var j = 0; j < scopes.length; j++) {
+            key = scopes[j] + "_" + priority[i];
+
+            if (res[key]) {
+              $(".scope-zone li[data-id='" + priority[i] + "']").click();
+              $(".tabs-zone li[data-id='" + scopes[j] + "']").click();
+
+              freaksFound = true;
+              break stuff;
+            }
+          }
+        }
+      } 
+
+      if (!freaksFound) {
+        $(".scope-zone li[data-id='page']").click();
+        $(".tabs-zone li[data-id='js']").click();
+      }
+    });
+
+    
+
+    // search for all tweaks for this page on css/js/libs
+    // then select proper tab on "all-origin-page" and "css-js/lib"
+
+    // chrome.runtime.sendMessage({action: "search", type: "js", url: tab.url}, function (res) {
+
+    // });
+
+
+    
+    
+
     // currentPage = new Page(tab.url);
+    // 
+    // $("#scopeDisplay").html(scopeLevel=="all" ? "all sites" : (scopeLevel=="host" ? currentPage.getHost() : currentPage.getURL()));
+    // load scripts and fill "defined" classes
+    
+
+
+    return;
+
+    
     
     // initialize CodeMirror editor
     var editor = CodeMirror.fromTextArea($("#code"), {
@@ -173,4 +299,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     repaint();
   });
+
+  
 }, false);

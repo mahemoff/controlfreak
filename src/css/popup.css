@@ -37,44 +37,91 @@ body {
 	overflow: hidden;
 }
 
-#scopeZone {
-	margin: 7px 0;
+.scope-zone {
 	height: 50px;
 }
 
-body iframe{ border: 0; }
-
-
-
-
-
-#scopeDisplay { float: left; line-height: 1em;text-overflow:ellipsis; height: 14px;margin-bottom: 3px; padding: 5px; font-size: 12px; width:100%; white-space: nowrap; overflow:hidden; }
+#scopeDisplay { float: left; line-height: 1em; text-overflow:ellipsis; height: 14px;margin-bottom: 3px; padding: 5px; font-size: 12px; width:100%; white-space: nowrap; overflow:hidden; }
 #scopeDisplay { background: #FFF;}
-.scopeLevels { list-style: none; clear: left; margin: 0; width: 100%; height: 22px; margin-top: 2px; padding: 0px; background-color: #DDD; }
-.scopeLevel {float:left; position: relative; display:block; cursor:pointer; color:#222; padding: 4px 10px 2px 16px; background-color:#DDD; margin: 0; }
+
+.scopeLevels { list-style: none; clear: left; width: 100%; height: 22px; background-color: #ddd; }
+.scopeLevel {float:left; position: relative; display:block; cursor:pointer; color:#222; padding: 0 10px 0 16px; background-color:#DDD; margin: 0; font-size: 16px; line-height: 22px; }
 .scopeLevel:first-child{ padding-left: 6px; }
 .scopeLevel:after{ content: " "; width: 0; height: 0; display:block; position:absolute; right:-11px; top:0; border-top: 11px solid transparent; border-bottom: 11px solid transparent; border-left: 11px solid #DDD; z-index: 100; }
 .scopeLevel:hover{ color: #111; background-color: #BBB; }
 .scopeLevel:hover:after{ border-left: 11px solid #BBB!important; }
 
-.active { background: #68E; text-decoration: none; color: #FFF; }
+.scopeLevel.active:hover{ color: white; background-color: #68E; }
+.scopeLevel.active:hover:after{ border-left: 11px solid #68E!important; }
+
+.scopeLevel.active { background: #68E; text-decoration: none; color: #FFF; }
 .scopeLevel.active:after{ border-left: 11px solid #68E; }
 .scopeLevel:nth-child(n+2):before{ content:" "; display:block; position:absolute; left:1px; top:0; border-top: 11px solid transparent; border-bottom: 11px solid transparent; border-left: 11px solid #EEE; width:0; height:0; z-index: 50; }
 
-#tabs {float:left; clear:both; width: 95%; padding-left: 17px; }
-#tabs a {
-	float: right;
-	margin-left: 12px;
+.tabs-zone {
+  border-bottom: 1px solid #bbb;
 }
 
-.tab { background: #bbb; padding: 2px 4px; border-bottom-color: #ccc; z-index: 100; margin-right: 5px; cursor: pointer; border: 1px solid #666; display: inline; position: relative; opacity: 0.5; top: -3px; }
-.tab.active { background: white; cursor: default; opacity: 1; background: #68E; color: #FFF; padding: 2px 4px; }
-.active .openBorder { background: #68E; z-index: 400; color: #FFF; }
-.openBorder { position: absolute; bottom: -1; height: 1px; width: 100%; background: #999; z-index: 200; border-left: 1px solid #666; border-right: 1px solid #666; }
+.tabs-zone ul {
+  list-style: none;
+  font-size: 0;
+  margin-bottom: -1px;
+  margin-left: 12px;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.tabs-zone li {
+  display: inline-block;
+  vertical-align: bottom;
+  color: #888;
+  background: #ddd;
+  cursor: pointer;
+  border: 1px solid #bbb;
+  font-size: 16px;
+  line-height: 20px;
+  padding: 0 8px;
+  margin-right: -1px;
+}
+
+.tabs-zone li.active {
+  cursor: default;
+  color: black;
+  line-height: 22px;
+  background: #eee;
+  border-bottom-color: #eee;
+}
+
+.tabs-zone .manage-links {
+  float: right;
+  display: inline-block;
+  vertical-align: middle;
+  padding-right: 12px;
+}
+
+.tabs-zone .manage-links a {
+  font-size: 14px;
+}
+
+.arena-zone {
+  margin-top: 8px;
+}
+
+.arena-zone textarea {
+  resize: none;
+  border: none;
+  padding: 4px;
+  box-sizing: border-box;
+  font-family: Monaco, "Lucida Console", monospace;
+  width: 100%;
+  height: 120px;
+}
+
+/*body iframe{ border: 0; }
 
 #arena > * { border: 1px solid #CCC; background: #FFF; width: 96%; margin: 27px 2% 0px 2%; border-radius: 6px; }
 .codeMirror  { height: 200px; }
 #editLibs { background: #eee; padding: 2%; width: 92%; }
-#libsList { resize: none; display: block; margin-top: 1em; width: 100%; height: 167px; border: 1px solid #bbb; border-radius: 4px; }
+#libsList { resize: none; display: block; margin-top: 1em; width: 100%; height: 167px; border: 1px solid #bbb; border-radius: 4px; }*/
 
 #save { margin: 10px 0 0 10px; }

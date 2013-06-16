@@ -18,34 +18,35 @@
   <link rel="stylesheet" href="css/popup.css" />
 </head>
 <body>
+
 <div id="wrapper">
-  <div id="scopeZone" class="zone">
+  <div class="scope-zone">
     <ul class="scopeLevels">
-      <li id="all" class="scopeLevel">All</li>
-      <li id="host" class="scopeLevel">This Domain</li>
-      <li id="url" class="scopeLevel">This Page</li>
+      <li data-id="all" class="scopeLevel" data-title="all sites">All</li>
+      <li data-id="origin" class="scopeLevel">This domain</li>
+      <li data-id="page" class="scopeLevel">This page</li>
     </ul>
     <div id="scopeDisplay"></div>
   </div>
-  
-  <div id="tabs" class="zone">
-    <div id="js" class="tab scriptType active">
-      Javascript
-      <div class="openBorder"></div>
-    </div>
-    <div id="css" class="tab scriptType">
-      CSS
-      <div class="openBorder"></div>
-    </div>
-    <div id="libs" class="tab">
-      Libs
-      <div class="openBorder"></div>
-    </div>
 
-    <a target="_blank" class="hidden" href="popup.html">debug</a>
-    <a target="_blank" href="scripts.html">manage all</a>
+  <div class="tabs-zone">
+    <ul>
+      <li data-id="js">Javascript</li>
+      <li data-id="css">CSS</li>
+      <li data-id="libs">Libs</li>
+    </ul>
+
+    <div class="manage-links">
+      <a target="_blank" class="hidden" href="popup.html">debug</a>
+      <a target="_blank" href="scripts.html">manage all</a>
+    </div>
   </div>
-  <div id="arena">
+
+  <div class="arena-zone">
+    <textarea id="code"></textarea>
+  </div>
+
+  <!-- <div id="arena">
     <textarea id="code"></textarea>
     <div id="editLibs">
       <select id="popularLibs">
@@ -61,8 +62,8 @@
       </select>
       <textarea id="libsList"></textarea>
     </div>
-  </div>
-  <button id="save">Save</button>
+  </div> -->
+  <button id="save" type="button">Save</button>
 </div> 
 </body>
 </html>

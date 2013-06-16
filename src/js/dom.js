@@ -18,7 +18,7 @@
  * ========================================================== */
 
 (function (w) {
-	w["$"] = function () {
+	window.$ = function () {
 		switch (arguments.length) {
 			case 1:
 				if (arguments[0] instanceof HTMLElement)
@@ -47,7 +47,7 @@
 		throw new Error("Can't use these arguments");
 	};
 
-	w["$$"] = function () {
+	window.$$ = function () {
 		switch (arguments.length) {
 			case 1:
 				if (typeof arguments[0] === "string")
@@ -65,318 +65,425 @@
 		throw new Error("Can't use these arguments");
 	};
 
-	var HTMLExtendedProto = {
-		closestParent: function (selector) {
-			var matchesSelectorFn = (Element.prototype.webkitMatchesSelector || Element.prototype.matchesSelector);
-			var elem = this;
+	HTMLElement.prototype.__proto__ = Object.create(Object.getPrototypeOf(HTMLElement.prototype), {
+		closestParent: {
+			writable: false,
+			configurable: false,
+			enumerable: false,
+			value: function (selector) {
+				var matchesSelectorFn = (Element.prototype.webkitMatchesSelector || Element.prototype.matchesSelector);
+				var elem = this;
 
-			while (elem.parentNode) {
-				if (matchesSelectorFn.call(elem, selector))
-					return elem;
+				while (elem.parentNode) {
+					if (matchesSelectorFn.call(elem, selector))
+						return elem;
 
-				elem = elem.parentNode;
+					elem = elem.parentNode;
+				}
+
+				return null;
 			}
-
-			return null;
 		},
+		bind: {
+			writable: false,
+			configurable: false,
+			enumerable: false,
+			value: function (evtType, callback, singleton) {
+				if (singleton) {
+					this["on" + evtType] = callback;
+				} else {
+					this.addEventListener(evtType, callback, false);
+				}
 
-		bind: function (evtType, callback, singleton) {
-			if (singleton) {
-				this["on" + evtType] = callback;
-			} else {
-				this.addEventListener(evtType, callback, false);
-			}
-
-			return this;
-		},
-
-		remove: function () {
-			return this.parentNode.removeChild(this);
-		},
-
-		html: function (newHTML) {
-			if (newHTML !== undefined) {
-				this.innerHTML = newHTML;
 				return this;
 			}
+		},
+		remove: {
+			writable: false,
+			configurable: false,
+			enumerable: false,
+			value: function () {
+				return this.parentNode.removeChild(this);
+			}
+		},
+		html: {
+			writable: false,
+			configurable: false,
+			enumerable: false,
+			value: function (newHTML) {
+				if (newHTML !== undefined) {
+					this.innerHTML = newHTML;
+					return this;
+				}
 
-			return this.innerHTML;
+				return this.innerHTML;
+			}
+		},
+		text: {
+			writable: false,
+			configurable: false,
+			enumerable: false,
+			value: function (newContent) {
+				if (newContent !== undefined) {
+					this.textContent = newContent;
+					return this;
+				}
+
+				return this.textContent;
+			}
+		},
+		empty: {
+			writable: false,
+			configurable: false,
+			enumerable: false,
+			value: function () {
+				return this.html("");
+			}
 		},
 
-		text: function (newContent) {
-			if (newContent !== undefined) {
-				this.textContent = newContent;
+		/**
+		 * @param {String|Array|HTMLElement} contents
+		 */
+		append: {
+			writable: false,
+			configurable: false,
+			enumerable: false,
+			value: function (contents) {
+				if (typeof contents === "string") {
+					this.insertAdjacentHTML("beforeEnd", contents);
+				} else {
+					if (contents instanceof HTMLElement)
+						contents = [contents];
+
+					for (var i = 0; i < contents.length; i++) {
+						this.insertAdjacentElement("beforeEnd", contents[i]);
+					}
+				}
+
 				return this;
 			}
-
-			return this.textContent;
-		},
-
-		empty: function () {
-			return this.html("");
 		},
 
 		/**
 		 * @param {String|Array|HTMLElement} contents
 		 */
-		append: function (contents) {
-			if (typeof contents === "string") {
-				this.insertAdjacentHTML("beforeEnd", contents);
-			} else {
-				if (contents instanceof HTMLElement)
-					contents = [contents];
+		prepend: {
+			writable: false,
+			configurable: false,
+			enumerable: false,
+			value: function (contents) {
+				if (typeof contents === "string") {
+					this.insertAdjacentHTML("afterBegin", contents);
+				} else {
+					if (contents instanceof HTMLElement)
+						contents = [contents];
 
-				for (var i = 0; i < contents.length; i++) {
-					this.insertAdjacentElement("beforeEnd", contents[i]);
+					for (var i = contents.length - 1; i >= 0; i--) {
+						this.insertAdjacentElement("afterBegin", contents[i]);
+					}
 				}
-			}
 
-			return this;
+				return this;
+			}
 		},
 
 		/**
 		 * @param {String|Array|HTMLElement} contents
 		 */
-		prepend: function (contents) {
-			if (typeof contents === "string") {
-				this.insertAdjacentHTML("afterBegin", contents);
-			} else {
-				if (contents instanceof HTMLElement)
-					contents = [contents];
+		before: {
+			writable: false,
+			configurable: false,
+			enumerable: false,
+			value: function (contents) {
+				if (typeof contents === "string") {
+					this.insertAdjacentHTML("beforeBegin", contents);
+				} else {
+					if (contents instanceof HTMLElement)
+						contents = [contents];
 
-				for (var i = contents.length - 1; i >= 0; i--) {
-					this.insertAdjacentElement("afterBegin", contents[i]);
+					for (var i = 0; i < contents.length; i++) {
+						this.insertAdjacentElement("beforeBegin", contents[i]);
+					}
 				}
-			}
 
-			return this;
+				return this;
+			}
 		},
 
 		/**
 		 * @param {String|Array|HTMLElement} contents
 		 */
-		before: function (contents) {
-			if (typeof contents === "string") {
-				this.insertAdjacentHTML("beforeBegin", contents);
-			} else {
-				if (contents instanceof HTMLElement)
-					contents = [contents];
+		after: {
+			writable: false,
+			configurable: false,
+			enumerable: false,
+			value: function (contents) {
+				if (typeof contents === "string") {
+					this.insertAdjacentHTML("afterEnd", contents);
+				} else {
+					if (contents instanceof HTMLElement)
+						contents = [contents];
 
-				for (var i = 0; i < contents.length; i++) {
-					this.insertAdjacentElement("beforeBegin", contents[i]);
+					for (var i = 0; i < contents.length; i++) {
+						this.insertAdjacentElement("afterEnd", contents[i]);
+					}
 				}
+
+				return this;
 			}
-
-			return this;
 		},
+		val: {
+			writable: false,
+			configurable: false,
+			enumerable: false,
+			value: function (newValue) {
+				if (newValue === undefined)
+					return this.value;
 
-		/**
-		 * @param {String|Array|HTMLElement} contents
-		 */
-		after: function (contents) {
-			if (typeof contents === "string") {
-				this.insertAdjacentHTML("afterEnd", contents);
-			} else {
-				if (contents instanceof HTMLElement)
-					contents = [contents];
-
-				for (var i = 0; i < contents.length; i++) {
-					this.insertAdjacentElement("afterEnd", contents[i]);
-				}
+				this.value = newValue;
+				return this;
 			}
-
-			return this;
 		},
+		addClass: {
+			writable: false,
+			configurable: false,
+			enumerable: false,
+			value: function () {
+				var classNames = Array.prototype.slice.call(arguments, 0);
+				for (var i = 0; i < classNames.length; i++)
+					this.classList.add(classNames[i]);
 
-		val: function (newValue) {
-			if (newValue === undefined)
-				return this.value;
-
-			this.value = newValue;
-			return this;
-		},
-
-		addClass: function () {
-			var classNames = Array.prototype.slice.call(arguments, 0);
-			for (var i = 0; i < classNames.length; i++)
-				this.classList.add(classNames[i]);
-
-			return this;
+				return this;
+			}
 		},
 
 		/**
 		 * if multiple aguments are supplied, checks whether all of them are in the classList
 		 */
-		hasClass: function () {
-			var classNames = Array.prototype.slice.call(arguments, 0);
-			var contains = true;
+		hasClass: {
+			writable: false,
+			configurable: false,
+			enumerable: false,
+			value: function () {
+				var classNames = Array.prototype.slice.call(arguments, 0);
+				var contains = true;
 
-			for (var i = 0; i < classNames.length; i++) {
-				if (!this.classList.contains(classNames[i])) {
-					contains = false;
-					break;
+				for (var i = 0; i < classNames.length; i++) {
+					if (!this.classList.contains(classNames[i])) {
+						contains = false;
+						break;
+					}
 				}
+
+				return contains;
 			}
-
-			return contains;
 		},
-
-		toggleClass: function (className) {
-			return this.classList.toggle(className);
+		toggleClass: {
+			writable: false,
+			configurable: false,
+			enumerable: false,
+			value: function (className) {
+				return this.classList.toggle(className);
+			}
 		},
 
 		/**
 		 * if no aguments are supplied, clears all classes from the DOM element(s)
 		 */
-		removeClass: function () {
-			var classNames = Array.prototype.slice.call(arguments, 0);
-			if (classNames.length) {
-				for (var i = 0; i < classNames.length; i++) {
-					this.classList.remove(classNames[i]);
+		removeClass: {
+			writable: false,
+			configurable: false,
+			enumerable: false,
+			value: function () {
+				var classNames = Array.prototype.slice.call(arguments, 0);
+				if (classNames.length) {
+					for (var i = 0; i < classNames.length; i++) {
+						this.classList.remove(classNames[i]);
+					}
+				} else {
+					this.className = "";
 				}
-			} else {
-				this.className = "";
+
+				return this;
 			}
-
-			return this;
 		},
+		attr: {
+			writable: false,
+			configurable: false,
+			enumerable: false,
+			value: function (key, value) {
+				if (value === undefined && typeof key === "string")
+					return this.getAttribute(key);
 
-		attr: function (key, value) {
-			if (value === undefined && typeof key === "string")
-				return this.getAttribute(key);
+				var attributes = {};
+				if (arguments.length === 1) {
+					attributes = key;
+				} else {
+					attributes[key] = value;
+				}
 
-			var attributes = {};
-			if (arguments.length === 1) {
-				attributes = key;
-			} else {
-				attributes[key] = value;
+				for (var key in attributes)
+					this.setAttribute(key, attributes[key]);
+
+				return this;
 			}
-
-			for (var key in attributes)
-				this.setAttribute(key, attributes[key]);
-
-			return this;
 		},
-
-		removeAttr: function (key) {
-			this.removeAttribute(key);
-			return this;
-		},
-
-		data: function (key, value) {
-			if (value === undefined && typeof key === "string")
-				return (this.dataset[key] || "");
-
-			var data = {};
-			if (arguments.length === 1) {
-				data = key;
-			} else {
-				data[key] = value;
+		removeAttr: {
+			writable: false,
+			configurable: false,
+			enumerable: false,
+			value: function (key) {
+				this.removeAttribute(key);
+				return this;
 			}
+		},
+		data: {
+			writable: false,
+			configurable: false,
+			enumerable: false,
+			value: function (key, value) {
+				if (value === undefined && typeof key === "string")
+					return (this.dataset[key] || "");
 
-			for (var key in data)
-				this.dataset[key] = data[key];
+				var data = {};
+				if (arguments.length === 1) {
+					data = key;
+				} else {
+					data[key] = value;
+				}
 
-			return this;
+				for (var key in data)
+					this.dataset[key] = data[key];
+
+				return this;
+			}
 		},
 
 		/**
 		 * if no aguments are supplied, clears all dataset from the DOM element(s)
 		 */
-		removeData: function () {
-			var datasetKeys = Array.prototype.slice.call(arguments, 0);
+		removeData: {
+			writable: false,
+			configurable: false,
+			enumerable: false,
+			value: function () {
+				var datasetKeys = Array.prototype.slice.call(arguments, 0);
 
-			for (var key in this.dataset) {
-				if (!datasetKeys.length || datasetKeys.indexOf(key) !== -1) {
-					delete this.dataset[key];
+				for (var key in this.dataset) {
+					if (!datasetKeys.length || datasetKeys.indexOf(key) !== -1) {
+						delete this.dataset[key];
+					}
+				}
+
+				return this;
+			}
+		},
+		css: {
+			writable: false,
+			configurable: false,
+			enumerable: false,
+			value: function (key, value) {
+				if (value === undefined && typeof key === "string")
+					return this.style[key];
+
+				var styles = {};
+				if (arguments.length === 1) {
+					styles = key;
+				} else {
+					styles[key] = value;
+				}
+
+				for (var key in styles)
+					this.style[key] = styles[key];
+
+				return this;
+			}
+		}
+	});
+
+	NodeList.prototype.__proto__ = Object.create(Object.getPrototypeOf(NodeList.prototype), {
+		each: {
+			writable: false,
+			configurable: false,
+			enumerable: false,
+			value: function (fn) {
+				for (var i = 0; i < this.length; i++) {
+					fn.call(this[i], i);
 				}
 			}
-
-			return this;
 		},
+		bind: {
+			writable: false,
+			configurable: false,
+			enumerable: false,
+			value: function (evtType, callback) {
+				for (var i = 0; i < this.length; i++)
+					this[i].addEventListener(evtType, callback, false);
 
-		css: function (key, value) {
-			if (value === undefined && typeof key === "string")
-				return this.style[key];
-
-			var styles = {};
-			if (arguments.length === 1) {
-				styles = key;
-			} else {
-				styles[key] = value;
-			}
-
-			for (var key in styles)
-				this.style[key] = styles[key];
-
-			return this;
-		},
-
-		__proto__: HTMLElement.prototype.__proto__
-	};
-
-	var NodeListExtendedProto = {
-		each: function (fn) {
-			for (var i = 0; i < this.length; i++) {
-				fn.call(this[i], i);
+				return this;
 			}
 		},
-
-		bind: function (evtType, callback) {
-			for (var i = 0; i < this.length; i++)
-				this[i].addEventListener(evtType, callback, false);
-
-			return this;
-		},
-
-		empty: function () {
-			for (var i = 0; i < this.length; i++) {
-				this[i].empty();
-			}
-		},
-
-		remove: function () {
-			for (var i = 0; i < this.length; i++) {
-				this[i].parentNode.removeChild(this[i]);
-			}
-		},
-
-		addClass: function () {
-			var classNames = Array.prototype.slice.call(arguments, 0);
-			for (var i = 0; i < classNames.length; i++) {
-				for (var j = 0; j < this.length; j++) {
-					this[j].classList.add(classNames[i]);
+		empty: {
+			writable: false,
+			configurable: false,
+			enumerable: false,
+			value: function () {
+				for (var i = 0; i < this.length; i++) {
+					this[i].empty();
 				}
 			}
+		},
+		remove: {
+			writable: false,
+			configurable: false,
+			enumerable: false,
+			value: function () {
+				for (var i = 0; i < this.length; i++) {
+					this[i].parentNode.removeChild(this[i]);
+				}
+			}
+		},
+		addClass: {
+			writable: false,
+			configurable: false,
+			enumerable: false,
+			value: function () {
+				var classNames = Array.prototype.slice.call(arguments, 0);
+				for (var i = 0; i < classNames.length; i++) {
+					for (var j = 0; j < this.length; j++) {
+						this[j].classList.add(classNames[i]);
+					}
+				}
 
-			return this;
+				return this;
+			}
 		},
 
 		/**
 		 * if no aguments are supplied, clears all classes from the DOM element(s)
 		 */
-		removeClass: function () {
-			var classNames = Array.prototype.slice.call(arguments, 0);
-			var i, j;
+		removeClass: {
+			writable: false,
+			configurable: false,
+			enumerable: false,
+			value: function () {
+				var classNames = Array.prototype.slice.call(arguments, 0);
+				var i, j;
 
-			if (classNames.length) {
-				for (i = 0; i < classNames.length; i++) {
+				if (classNames.length) {
+					for (i = 0; i < classNames.length; i++) {
+						for (j = 0; j < this.length; j++) {
+							this[j].classList.remove(classNames[i]);
+						}
+					}
+				} else {
 					for (j = 0; j < this.length; j++) {
-						this[j].classList.remove(classNames[i]);
+						this[j].className = "";
 					}
 				}
-			} else {
-				for (j = 0; j < this.length; j++) {
-					this[j].className = "";
-				}
+
+				return this;
 			}
-
-			return this;
-		},
-
-		__proto__: NodeList.prototype.__proto__
-	};
-
-	HTMLElement.prototype.__proto__ = HTMLExtendedProto;
-	NodeList.prototype.__proto__ = NodeListExtendedProto;
-})(window);
+		}
+	});
+})();
