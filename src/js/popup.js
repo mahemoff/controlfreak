@@ -34,10 +34,20 @@ document.addEventListener("DOMContentLoaded", function () {
     if (this.hasClass("active"))
       return;
 
-    $$(this.parentNode, "li").removeClass("active");
-    this.addClass("active");
-
     var scope = $(".scope-zone .active").data("id");
+    var el = this;
+
+    $$(this.parentNode, "li").removeClass("active").each(function () {
+      if (this === el)
+        this.addClass("active");
+
+      if (freaks[this.data("id") + "_" + scope]) {
+        this.addClass("defined");
+      } else {
+        this.removeClass("defined");
+      }
+    });
+
     var data = freaks[this.data("id") + "_" + scope];
 
     if (this.data("id") === "libs") {
@@ -87,21 +97,22 @@ document.addEventListener("DOMContentLoaded", function () {
       var key;
 
       // @todo what if the tweak was made for index page?
-      stuff: {
-        for (var i = 0; i < priority.length; i++) {
-          for (var j = 0; j < scopes.length; j++) {
-            key = scopes[j] + "_" + priority[i];
+      for (var i = 0; i < priority.length; i++) {
+        for (var j = 0; j < scopes.length; j++) {
+          key = scopes[j] + "_" + priority[i];
 
-            if (res[key]) {
+          if (res[key]) {
+            if (!freaksFound) {
               $(".scope-zone li[data-id='" + priority[i] + "']").click();
               $(".tabs-zone li[data-id='" + scopes[j] + "']").click();
 
               freaksFound = true;
-              break stuff;
             }
+
+            $(".scope-zone li[data-id='" + priority[i] + "']").addClass("defined");
           }
         }
-      } 
+      }
 
       if (!freaksFound) {
         $(".scope-zone li[data-id='page']").click();

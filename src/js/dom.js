@@ -282,8 +282,8 @@
 			writable: false,
 			configurable: false,
 			enumerable: false,
-			value: function (className) {
-				return this.classList.toggle(className);
+			value: function (className, force) {
+				return this.classList.toggle(className, force);
 			}
 		},
 

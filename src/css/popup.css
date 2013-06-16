@@ -6,10 +6,6 @@ a, a:visited {
 	color: #00b;
 }
 
-.undefined {
-	text-decoration: none;
-}
-
 .defined {
 	text-decoration: underline;
 }
