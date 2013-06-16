@@ -3,29 +3,22 @@ chrome.runtime.onMessage.addListener(function (req, sender, sendResponse) {
     case "search":
       searchFreaks(req.url, sendResponse);
       return true;
-
-      // var res = chrome.tabs.executeScript(sender.tab.id, {file: 'http://yandex.st/jquery/2.0.2/jquery.min.js'}, sendResponse)
-      // return true;
-      
-    //   chrome.tabs.executeScript({
-    //   code: 'document.body.style.backgroundColor="red"'
-    // });
       break;
 
-    case "search222":
+    case "content":
       // search for scripts on this page
-      parallel({
-        all: function (callback) {
-          chrome.storage.local.get("js-*", callback);
-        },
-        origin: function (callback) {
-          chrome.storage.local.get("js-" + origin, callback);
-        },
-        page: function (callback) {
-          chrome.storage.local.get("js-" + url, callback);
+      searchFreaks(req.url, function (res) {
+        // @todo libs first
+        for (var key in res) {
+          if (/^js_/.test(key)) {
+            chrome.tabs.executeScript(sender.tab.id, {code: res[key]});
+          } else if (/^css_/.test(key)) {
+            chrome.tabs.insertCSS(sender.tab.id, {code: res[key]});
+          }
         }
-      }, sendResponse);
+      });
 
+      return false;
       break;
   }
 
@@ -95,56 +88,4 @@ chrome.runtime.onMessage.addListener(function (req, sender, sendResponse) {
       callback(output);
     });
   }
-
-//   var page = new Page(req);
-
-//   asyncParallel({
-//     libs: function (callback) {
-//       composeScripts(page, "libs", function (scripts) {
-//         // @todo was: _(scripts).flatten()
-//         callback(null, scripts);
-//       });
-//     },
-//     jsScripts: function (callback) {
-//       composeScripts(page, "js", function (scripts) {
-//         callback(null, scripts);
-//       });
-//     },
-//     cssScripts: function (callback) {
-//       composeScripts(page, "css", function (scripts) {
-//         callback(null, scripts);
-//       });
-//     }
-//   }, function (err, results) {
-//     sendResponse(results);
-//   });
-// });
-
-// function composeScripts(page, scriptType, callback) {
-//   asyncParallel([
-//     function (callback) {
-//       scriptDAO.load(scriptType, "*", function (contents) {
-//         callback(null, contents);
-//       });
-//     },
-//     function (callback) {
-//       scriptDAO.load(scriptType, page.getHost(), function (contents) {
-//         callback(null, contents);
-//       });
-//     },
-//     function (callback) {
-//       scriptDAO.load(scriptType, page.getURL(), function (contents) {
-//         callback(null, contents);
-//       });
-//     }
-//   ], function (err, results) {
-//     results = results.filter(function (script) {
-//       // @todo can objects be here?
-//       return (typeof script === "string" || string instanceof Array)
-//         ? (string.length > 0)
-//         : (Object.keys(string).length > 0);
-//     });
-
-//     callback(results);
-//   });
 });
