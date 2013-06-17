@@ -17,57 +17,59 @@
       case "content":
         // search for scripts on this page
         searchFreaks(req.url, function (res) {
-          var scriptData = "";
-          var stylesData = "";
-
-          var tasks = {};
-          var libURLs = [];
+          var loadLibsTasks = {
+            js: [],
+            css: []
+          };
 
           ["libs_all", "libs_origin", "libs_page"].forEach(function (tabScope) {
             if (!res[tabScope])
               return;
 
-            // current errors: no mixing of js/css is allowed - appending scriptData/stylesData is needed instead
-            // 2. same URLs can be used
-            tasks.push(function (callback) {
-              var multipleLibsTasks = [];
-
-              // multiple libs may be used
-              res[tabScope].forEach(function (url) {
-                multipleLibsTasks.push(function (callback) {
-                  requestExternalContent(smth, callback);
+            for (var i = 0; i < res[tabScope].length; i++) {
+              (function (libraryURL, taskType) {
+                loadLibsTasks[taskType].push(function (callback) {
+                  requestExternalContent(libraryURL, callback);
                 });
-              });
+              })(res[tabScope][i], /\.js$/i.test(res[tabScope][i]) ? "js" : "css");
+            }
+          });
 
-              parallel(multipleLibsTasks, function (res) {
-                callback(res.join("\n"));
-              });
+          // parallelize JS libraries loading
+          parallel(loadLibsTasks.js, function (libs) {
+            var scriptData = libs.join("\n\n");
+
+            // append js data
+            ["all", "origin", "page"].forEach(function (scope) {
+              var key = "js_" + scope;
+              if (!res[key])
+                return;
+
+              scriptData += "\n\n" + res[key];
             });
+
+            if (scriptData.length) {
+              chrome.tabs.executeScript(sender.tab.id, {code: scriptData});
+            }
           });
 
-          // append js data
-          ["all", "origin", "page"].forEach(function (scope) {
-            var key = "js_" + scope;
-            if (!res[key])
-              return;
+          // parallelize CSS libraries loading
+          parallel(loadLibsTasks.css, function (libs) {
+            var stylesData = libs.join("\n\n");
 
-            scriptData += "\n\n" + res[key];
+            // append js data
+            ["all", "origin", "page"].forEach(function (scope) {
+              var key = "css_" + scope;
+              if (!res[key])
+                return;
+
+              stylesData += "\n\n" + res[key];
+            });
+
+            if (stylesData.length) {
+              chrome.tabs.insertCSS(sender.tab.id, {code: stylesData});
+            }
           });
-
-          // append css data
-          ["all", "origin", "page"].forEach(function (scope) {
-            var key = "css_" + scope;
-            if (!res[key])
-              return;
-
-            stylesData += "\n\n" + res[key];
-          });
-
-          if (scriptData.length)
-            chrome.tabs.executeScript(sender.tab.id, {code: scriptData});
-
-          if (stylesData.length)
-            chrome.tabs.insertCSS(sender.tab.id, {code: stylesData});
         });
 
         return false;
