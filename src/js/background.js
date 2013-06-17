@@ -1,26 +1,36 @@
-chrome.runtime.onMessage.addListener(function (req, sender, sendResponse) {
-  switch (req.action) {
-    case "search":
-      searchFreaks(req.url, sendResponse);
-      return true;
-      break;
+(function () {
+  // migration process
+  chrome.runtime.onInstalled.addListener(function (details) {
+    if (details.reason === "update" && (/^0\./.test(details.previousVersion) || /^1\./.test(details.previousVersion))) {
+      migrate();
+    }
+  });
 
-    case "content":
-      // search for scripts on this page
-      searchFreaks(req.url, function (res) {
-        // @todo libs first
-        for (var key in res) {
-          if (/^js_/.test(key)) {
-            chrome.tabs.executeScript(sender.tab.id, {code: res[key]});
-          } else if (/^css_/.test(key)) {
-            chrome.tabs.insertCSS(sender.tab.id, {code: res[key]});
+  // messages listener
+  chrome.runtime.onMessage.addListener(function (req, sender, sendResponse) {
+    switch (req.action) {
+      case "search":
+        searchFreaks(req.url, sendResponse);
+        return true;
+        break;
+
+      case "content":
+        // search for scripts on this page
+        searchFreaks(req.url, function (res) {
+          // @todo libs first
+          for (var key in res) {
+            if (/^js_/.test(key)) {
+              chrome.tabs.executeScript(sender.tab.id, {code: res[key]});
+            } else if (/^css_/.test(key)) {
+              chrome.tabs.insertCSS(sender.tab.id, {code: res[key]});
+            }
           }
-        }
-      });
+        });
 
-      return false;
-      break;
-  }
+        return false;
+        break;
+    }
+  });
 
   // @see https://npmjs.org/package/async#parallel
   function parallel(tasks, callback) {
@@ -88,4 +98,22 @@ chrome.runtime.onMessage.addListener(function (req, sender, sendResponse) {
       callback(output);
     });
   }
-});
+
+  // migrate to 2.x
+  // @see https://github.com/1999/controlfreak/issues/8
+  function migrate() {
+    var saveData = {};
+    var hasFreaks = false;
+
+    for (var key in localStorage) {
+      if (/^js\-/.test(key) || /^css\-/.test(key) || /^libs\-/.test(key)) {
+        saveData[key] = localStorage[key];
+        hasFreaks = true;
+      }
+    }
+
+    if (hasFreaks) {
+      chrome.storage.local.set(saveData);
+    }
+  }
+})();
