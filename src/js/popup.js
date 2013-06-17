@@ -7,6 +7,44 @@ document.addEventListener("DOMContentLoaded", function () {
   if (config.DEBUG)
     $(".tabs-zone a.hidden").removeClass("hidden");
 
+  // prepare libraries list
+  var libsSelect = $(".arena-zone select");
+  var isCIS = [/^ru/, /^uk/, /^be/, /^kk/].some(function (lang) { return lang.test(navigator.language); });
+  var optgroup, option, versions = [];
+  var order, yandexPos;
+
+  for (var libName in config.LIBS) {
+    versions.length = 0;
+    optgroup = $("<optgroup/>").attr("label", libName);
+
+    // output Yandex CDN for CIS countries first
+    order = Object.keys(config.LIBS[libName]);
+    yandexPos = order.indexOf("Yandex");
+    if (isCIS && yandexPos !== -1) {
+      order.splice(yandexPos, 1);
+      order.unshift("Yandex");
+    }
+
+    for (var i = 0; i < order.length; i++) {
+      if (config.LIBS[libName][order[i]].versions) { // library with versions
+        config.LIBS[libName][order[i]].versions.forEach(function (version) {
+          if (versions.indexOf(version) !== -1)
+            return;
+
+          option = $("<option/>").val(config.LIBS[libName][order[i]].placeholder.replace("%version%", version)).html(version + " (" + order[i] + " CDN)");
+          optgroup.append(option);
+
+          versions.push(version);
+        });
+      } else { // without (json2 etc.)
+        option = $("<option/>").val(config.LIBS[libName][order[i]].placeholder).html(order[i] + " CDN");
+        optgroup.append(option);
+      }
+    }
+
+    libsSelect.append(optgroup);
+  }
+
   // bind change scopes handler
   $$(".scope-zone [data-id]").bind("click", function () {
     if (this.hasClass("active"))
@@ -36,27 +74,57 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var scope = $(".scope-zone .active").data("id");
     var el = this;
+    var tabSelected = this.data("id");
 
     $$(this.parentNode, "li").removeClass("active").each(function () {
       if (this === el)
         this.addClass("active");
 
-      if (freaks[this.data("id") + "_" + scope]) {
+      if (freaks[tabSelected + "_" + scope]) {
         this.addClass("defined");
       } else {
         this.removeClass("defined");
       }
     });
 
-    var data = freaks[this.data("id") + "_" + scope];
+    var data = freaks[tabSelected + "_" + scope];
 
-    if (this.data("id") === "libs") {
+    if (tabSelected === "libs") {
       data = (data || []).join("\n");
+      $(".arena-zone textarea").val(data).addClass("small").removeClass("hidden");
+      $(".arena-zone select").removeClass("hidden");
     } else {
       data = data || "";
+      $(".arena-zone textarea").val(data).removeClass("small", "hidden");
+      $(".arena-zone select").addClass("hidden");
+    }
+  });
+
+  // bind change libs handler
+  $(".arena-zone select").bind("change", function () {
+    var libsSelected = [];
+    var libsList = [];
+
+    for (var i = 0; i < this.options.length; i++) {
+      libsList.push(this.options[i].value);
+
+      if (this.options[i].selected) {
+        libsSelected.push(this.options[i].value);
+      }
     }
 
-    $(".arena-zone textarea").val(data);
+    var currentLibs = $(".arena-zone textarea").val().split("\n").filter(function (el) {
+      if (!el.trim().length)
+        return false;
+
+      if (libsList.indexOf(el.trim()) !== -1)
+        return false;
+
+      return true;
+    });
+
+    currentLibs = libsSelected.concat(currentLibs);
+    $(".arena-zone textarea").val(currentLibs.join("\n"));
   });
 
   // bind save action handler

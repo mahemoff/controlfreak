@@ -1,5 +1,5 @@
 .hidden {
-	display: none;
+	display: none !important;
 }
 
 a, a:visited {
@@ -13,24 +13,15 @@ a, a:visited {
 /* see http://code.google.com/p/chromium/issues/detail?id=26152 */
 html {
 	width: 500px;
-	height: 350px;
 }
 
 body {
-	overflow: hidden;
 	border: none;
 	width: 500px;
-	height: 350px;
-	margin-bottom: 10px;
 }
 
 #wrapper {
-	height: 100%;
-	width: 100%;
 	background-color: #eee;
-	margin: 0;
-	padding: 0;
-	overflow: hidden;
 }
 
 .scope-zone {
@@ -100,17 +91,34 @@ body {
 }
 
 .arena-zone {
-  margin-top: 8px;
+  padding: 8px 0;
+  overflow-y: auto;
 }
 
 .arena-zone textarea {
   resize: none;
   border: none;
+  display: block;
   padding: 4px;
   box-sizing: border-box;
   font-family: Monaco, "Lucida Console", monospace;
   width: 100%;
-  height: 120px;
+  box-shadow: 0 0 3px #666;
+  height: 300px;
+}
+
+.arena-zone textarea.small {
+  height: 100px;
+}
+
+.arena-zone select[multiple] {
+  display: block;
+  border: none;
+  font-size: 12px;
+  width: 100%;
+  height: 200px;
+  padding: 2px;
+  box-sizing: border-box;
 }
 
 /*body iframe{ border: 0; }
@@ -120,4 +128,7 @@ body {
 #editLibs { background: #eee; padding: 2%; width: 92%; }
 #libsList { resize: none; display: block; margin-top: 1em; width: 100%; height: 167px; border: 1px solid #bbb; border-radius: 4px; }*/
 
-#save { margin: 10px 0 0 10px; }
+#save {
+  margin: 2px 0 10px 12px;
+  cursor: pointer;
+}
