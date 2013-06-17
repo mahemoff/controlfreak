@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (this === el)
         this.addClass("active");
 
-      if (freaks[tabSelected + "_" + scope]) {
+      if (freaks[this.data("id") + "_" + scope]) {
         this.addClass("defined");
       } else {
         this.removeClass("defined");
@@ -90,9 +90,18 @@ document.addEventListener("DOMContentLoaded", function () {
     var data = freaks[tabSelected + "_" + scope];
 
     if (tabSelected === "libs") {
-      data = (data || []).join("\n");
-      $(".arena-zone textarea").val(data).addClass("small").removeClass("hidden");
-      $(".arena-zone select").removeClass("hidden");
+      data = data || [];
+      $(".arena-zone textarea").val(data.join("\n")).addClass("small").removeClass("hidden");
+      $(".arena-zone select").removeClass("hidden").focus();
+
+      // select options
+      $$(".arena-zone option").each(function () {
+        if (data.indexOf(this.value) !== -1) {
+          this.selected = true;
+        } else {
+          this.selected = false;
+        }
+      });
     } else {
       data = data || "";
       $(".arena-zone textarea").val(data).removeClass("small", "hidden");
@@ -148,6 +157,10 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       chrome.storage[storageType].remove(storageKey);
     }
+  });
+
+  $("#reset").bind("click", function () {
+    location.reload();
   });
 
   // update page properties
