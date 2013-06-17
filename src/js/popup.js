@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     nonEmptyScope = nonEmptyScope || "js";
-    $(".tabs-zone [data-id='" + nonEmptyScope + "']").click();
+    $(".tabs-zone [data-id='" + nonEmptyScope + "']").removeClass("active").click();
   });
 
   // bind change tabs handler
@@ -120,7 +120,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-    
+
 
     // search for all tweaks for this page on css/js/libs
     // then select proper tab on "all-origin-page" and "css-js/lib"
@@ -130,20 +130,20 @@ document.addEventListener("DOMContentLoaded", function () {
     // });
 
 
-    
-    
+
+
 
     // currentPage = new Page(tab.url);
-    // 
+    //
     // $("#scopeDisplay").html(scopeLevel=="all" ? "all sites" : (scopeLevel=="host" ? currentPage.getHost() : currentPage.getURL()));
     // load scripts and fill "defined" classes
-    
+
 
 
     return;
 
-    
-    
+
+
     // initialize CodeMirror editor
     var editor = CodeMirror.fromTextArea($("#code"), {
       mode: translatedScriptType(),
@@ -182,7 +182,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function repaint() {
       $(".active").removeClass("active");
       var scopeLevel=localStorage["scopeLevel"], tab=localStorage["tab"];
-      
+
       editor.setOption("mode", translatedScriptType() );
 
       $("#scopeDisplay").html(scopeLevel=="all" ? "all sites" : (scopeLevel=="host" ? currentPage.getHost() : currentPage.getURL()));
@@ -190,7 +190,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       scriptDAO.load(localStorage["scriptType"], getScope(), function (contents) {
         editor.setValue(contents||"");
-      
+
         $(".tab[id="+tab+"]").addClass("active");
         if (tab == "libs") {
           repaintLibs();
@@ -311,5 +311,5 @@ document.addEventListener("DOMContentLoaded", function () {
     repaint();
   });
 
-  
+
 }, false);
