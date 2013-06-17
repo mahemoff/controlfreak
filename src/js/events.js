@@ -118,4 +118,106 @@
       chrome.storage.local.set(saveData);
     }
   }
+
+  // xmlhttprequests
+  function request(url, headers, callback) {
+    if (typeof headers === "function") {
+      callback = headers;
+      headers = {};
+    }
+
+    var xhr = new XMLHttpRequest;
+    xhr.open("GET", url, true);
+
+    for (var header in headers) {
+      if (headers[header]) {
+        xhr.setRequestHeader(header, headers[header]);
+      }
+    }
+
+    xhr.onload = function () {
+      callback(null, {
+        status: xhr.status,
+        lastModified: xhr.getResponseHeader("last-modified"),
+        eTag: xhr.getResponseHeader("etag"),
+        data: xhr.responseText
+      });
+    };
+
+    xhr.onerror = xhr.onabort = function (evt) {
+      callback("Error: " + evt.type)
+    };
+
+    xhr.send();
+  }
+
+  // get filesystem point
+  function requestFileSystem(callback) {
+    (window.webkitRequestFileSystem || window.requestFileSystem)(window.TEMPORARY, 0, function (windowFsLink) {
+      callback(null, windowFsLink);
+    }, function (err) {
+      callback("Filesystem not available: " + err);
+    });
+  }
+
+  // try to get URL contents with proper cache headers
+  function requestExternalContent(url, callback) {
+    var errComment = "/* Unable to load " + url + " */\n";
+
+    requestFileSystem(function (err, fsLink) {
+      if (err) {
+        return request(url, function (err, res) {
+          callback(err ? errComment : res.data);
+        });
+      }
+
+      var fileName = url.replace(/[^\w]+/g, "") + ".json";
+      var data;
+
+      var requestCallback = function (err, res) {
+        if (err)
+          return callback(data || errComment);
+
+        if (res.status === 304)
+          return callback(data);
+
+        fsLink.root.getFile(fileName, {create: true}, function (fileEntry) {
+          fileEntry.createWriter(function (fileWriter) {
+            delete res.status;
+            var blob = new Blob([JSON.stringify(res, null, "\t")], {type: "text/plain"});
+
+            fileWriter.write(blob);
+            callback(res.data);
+          }, function (err) {
+            callback(res.data);
+          });
+        }, function (err) {
+          callback(res.data);
+        });
+      };
+
+      fsLink.root.getFile(fileName, {create: false}, function (fileEntry) {
+        fileEntry.file(function (file) {
+          var reader = new FileReader;
+
+          reader.onloadend = function (evt) {
+            try {
+              var cacheData = JSON.parse(reader.result);
+              data = cacheData.data;
+
+              request(url, {"If-Modified-Since": cacheData.lastModified, "If-None-Match": cacheData.eTag}, requestCallback);
+            } catch (ex) {
+              request(url, requestCallback);
+            }
+          };
+
+          reader.readAsText(file);
+        }, function (err) {
+          request(url, requestCallback);
+        });
+      }, function (err) {
+        request(url, requestCallback);
+      });
+    });
+  }
 })();
