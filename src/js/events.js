@@ -17,14 +17,57 @@
       case "content":
         // search for scripts on this page
         searchFreaks(req.url, function (res) {
-          // @todo libs first
-          for (var key in res) {
-            if (/^js_/.test(key)) {
-              chrome.tabs.executeScript(sender.tab.id, {code: res[key]});
-            } else if (/^css_/.test(key)) {
-              chrome.tabs.insertCSS(sender.tab.id, {code: res[key]});
-            }
-          }
+          var scriptData = "";
+          var stylesData = "";
+
+          var tasks = {};
+          var libURLs = [];
+
+          ["libs_all", "libs_origin", "libs_page"].forEach(function (tabScope) {
+            if (!res[tabScope])
+              return;
+
+            // current errors: no mixing of js/css is allowed - appending scriptData/stylesData is needed instead
+            // 2. same URLs can be used
+            tasks.push(function (callback) {
+              var multipleLibsTasks = [];
+
+              // multiple libs may be used
+              res[tabScope].forEach(function (url) {
+                multipleLibsTasks.push(function (callback) {
+                  requestExternalContent(smth, callback);
+                });
+              });
+
+              parallel(multipleLibsTasks, function (res) {
+                callback(res.join("\n"));
+              });
+            });
+          });
+
+          // append js data
+          ["all", "origin", "page"].forEach(function (scope) {
+            var key = "js_" + scope;
+            if (!res[key])
+              return;
+
+            scriptData += "\n\n" + res[key];
+          });
+
+          // append css data
+          ["all", "origin", "page"].forEach(function (scope) {
+            var key = "css_" + scope;
+            if (!res[key])
+              return;
+
+            stylesData += "\n\n" + res[key];
+          });
+
+          if (scriptData.length)
+            chrome.tabs.executeScript(sender.tab.id, {code: scriptData});
+
+          if (stylesData.length)
+            chrome.tabs.insertCSS(sender.tab.id, {code: stylesData});
         });
 
         return false;
