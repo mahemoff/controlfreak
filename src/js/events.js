@@ -107,8 +107,10 @@
 
     for (var key in localStorage) {
       if (/^js\-/.test(key) || /^css\-/.test(key) || /^libs\-/.test(key)) {
-        saveData[key] = localStorage[key];
-        hasFreaks = true;
+        try {
+          saveData[key] = JSON.parse(localStorage[key]);
+          hasFreaks = true;
+        } catch (ex) {}
       }
     }
 
