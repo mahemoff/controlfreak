@@ -4,7 +4,7 @@
   "manifest_version": 2,
   "minimum_chrome_version" : "22",
   "description": "Greasemonkey-like mods, but quicker to tweak",
-  "icons": { 
+  "icons": {
     "16":  "images/system16.png",
     "32":  "images/system32.png",
     "128": "images/system128.png"
@@ -17,10 +17,8 @@
   },
 
   "background": {
-    "scripts": [
-      "src/js/scriptDAO.js",
-      "src/js/background.js"
-    ]
+    "scripts": ["src/js/events.js"],
+    "persistent": false
   },
   "options_page": "src/scripts.html",
 
