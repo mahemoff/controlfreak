@@ -104,7 +104,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     } else {
       data = data || "";
-      $(".arena-zone textarea").val(data).removeClass("small", "hidden");
+      $(".arena-zone textarea").val(data).removeClass("small", "hidden").focus();
       $(".arena-zone select").addClass("hidden");
     }
   });

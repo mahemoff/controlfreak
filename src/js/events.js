@@ -14,6 +14,26 @@
         return true;
         break;
 
+      case "changeStorageType":
+        localStorage.type = req.sync ? "sync" : "local";
+
+        if (req.sync) {
+          chrome.storage.local.get(null, function (obj) {
+            chrome.storage.sync.set(obj, function () {
+              chrome.storage.local.clear(sendResponse);
+            });
+          });
+        } else {
+          chrome.storage.sync.get(null, function (obj) {
+            chrome.storage.local.set(obj, function () {
+              chrome.storage.sync.clear(sendResponse);
+            });
+          });
+        }
+
+        return true;
+        break;
+
       case "content":
         // search for scripts on this page
         searchFreaks(req.url, function (res) {

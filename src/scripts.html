@@ -1,27 +1,39 @@
-<script src="../lib/jquery-2.0.0.min.js"></script>
-<script src="../lib/underscore-min.js"></script>
-<script src="js/scriptDAO.js"></script>
-<script src="js/scripts.js"></script>
-<link rel="stylesheet" href="css/reset.css" />
-<link rel="stylesheet" href="css/scripts.css" />
+<!DOCTYPE HTML>
+<html>
+<head>
+  <script src="js/config.js"></script>
+  <script src="js/dom.js"></script>
+  <script src="js/scripts.js"></script>
+
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/scripts.css" />
+</head>
+<body>
 
 <h1>Control Freak Scripts</h1>
 
 <div id="controls">
-	<label>
-		<button id="clear">Clear All Scripts</button>
-	</label>
-	<label>
-		<input type="checkbox" id="sync"> Sync my scripts and stylesheets (N.B.: tweaks more than <span id="quota"></span> bytes length won't be synced)
-	</label>
+  <label>
+    <button id="clear">Clear all tweaks</button>
+  </label>
+  <label>
+    <input type="checkbox" id="sync"> Sync my tweaks (N.B.: tweaks more than <span id="quota"></span> bytes length won't be synced properly)
+  </label>
 </div>
 
-<ul id="scripts">
-</ul>
+<ul id="scripts"></ul>
 
-<textarea class="template" id="scriptTemplate">
-    <h3><%= renderScope(scope) %> <span class='scriptType'><%= scriptType.toUpperCase() %></span></h3>  
-    <a class="preview" href="javascript:void(0);">Preview</a>
-    <a class="delete" href="javascript:void(0);">Delete</a>  
-    <pre><%= text %></pre>
-</textarea>
+<div class="template">
+    <h3>
+      <span class="scriptType">{type}</span>
+      {scope}
+    </h3>
+    <div class="manage-links">
+      <a class="delete" href="">Delete</a>
+    </div>
+
+    <pre>{text}</pre>
+</div>
+
+</body>
+</html>

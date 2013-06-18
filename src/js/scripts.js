@@ -1,83 +1,94 @@
 document.addEventListener("DOMContentLoaded", function () {
-  $("#clear").bind("click", function () {
-    if (!confirm("THIS IS SERIOUS MUM!!!\n"+
-       "You're about to delete all of your Control Freak scripts PERMANENTLY."))
-       return;
-
-    scriptDAO.clear(repaint);
-  });
-
-  $("#refresh").bind("click", repaint);
-  repaint();
-
   $("#quota").html(chrome.storage.sync.QUOTA_BYTES_PER_ITEM);
 
-  var syncCheckbox = $("#sync");
-  if (localStorage.getItem("storage_option") === "sync")
-    syncCheckbox.prop("checked", true);
+  // bind clear freaks handler
+  $("#clear").bind("click", function () {
+    if (!confirm("This will delete all of your Control Freak scripts PERMANENTLY. Proceed?"))
+      return;
 
+    var storageType = localStorage.type === "sync" ? "sync" : "local";
+    chrome.storage[storageType].clear(repaint);
+  });
+
+  // update sync checkbox state
+  var syncCheckbox = $("#sync");
+  var storageType = localStorage.type === "sync" ? "sync" : "local";
+  syncCheckbox.checked = (storageType === "sync");
+
+  // bind change sync state
   syncCheckbox.bind("click", function () {
     var syncState = this.checked;
+    this.disabled = true;
 
-    chrome.permissions.request({
-      permissions: ["storage"]
-    }, function (granted) {
-      if (!granted)
-        return;
-
-      localStorage.setItem("storage_option", syncState ? "sync" : "local");
-      scriptDAO.changeSyncState(syncState, function () {
-        repaint();
-        listenToStorageChanges();
-      });
+    chrome.runtime.sendMessage({action: "changeStorageType", sync: syncState}, function () {
+      syncCheckbox.disabled = false;
     });
   });
 
-  listenToStorageChanges();
+  // repaint data on storage change
+  chrome.storage.onChanged.addListener(repaint);
+
+  // paint freaks on load
+  repaint();
+
+  function repaint() {
+    var script_ul = $("#scripts").empty();
+    var tplHTML = $(".template").html();
+    var storageType = localStorage.type === "sync" ? "sync" : "local";
+
+    chrome.storage[storageType].get(null, function (obj) {
+      var scripts = [];
+
+      for (var key in obj) {
+        var matches = key.match(/^(js|css|libs)-(.+)/);
+        if (matches) {
+          scripts.push({
+            scriptType: matches[1],
+            scope: matches[2],
+            text: obj[key],
+            location: $("<a/>").attr("href", matches[2])
+          });
+        }
+      }
+
+      scripts.sort(function (scriptA, scriptB) {
+        if (scriptA.scope=="*" && scriptB.scope!="*") return -1;
+        if (scriptB.scope=="*" && scriptA.scope!="*") return 1;
+        // @todo sort with pathname & origin?
+        if (scriptA.scope<scriptB.scope) return -1;
+        if (scriptB.scope<scriptA.scope) return 1;
+        return scriptA.scriptType < scriptB.scriptType;
+      });
+
+      scripts.forEach(function (script) {
+        var freakHTML = tplHTML;
+        freakHTML = freakHTML.replace("{type}", script.scriptType.toUpperCase());
+        freakHTML = freakHTML.replace("{text}", (typeof script.text === "string") ? script.text : JSON.stringify(script.text, null, "  "));
+
+        if (script.scope === "*")
+          freakHTML = freakHTML.replace("{scope}", "All websites");
+        else
+          freakHTML = freakHTML.replace("{scope}", $("<a/>").attr({href: script.scope, target: "_blank", title: "Open in a new tab"}).html(script.scope).outerHTML);
+
+        var list_item = $("<li/>").html(freakHTML).data("key", script.scriptType + "-" + script.scope);
+        script_ul.append(list_item);
+      });
+
+      $$(script_ul, "a.delete").bind("click", function (evt) {
+        if (confirm("This will delete this script PERMANENTLY! Proceed?")) {
+          var storageType = localStorage.type === "sync" ? "sync" : "local";
+          var key = this.closestParent("li").data("key");
+          chrome.storage[storageType].remove(key);
+        }
+
+        evt.preventDefault();
+      });
+    });
+  }
 }, false);
 
-// listen to chrome.storage and localStorage changes
-function listenToStorageChanges() {
-  window.removeEventListener("storage", repaint, false);
-  try {
-    chrome.storage.onChanged.removeListener(repaint);
-  } catch (ex) {}
 
-  window.addEventListener("storage", repaint, false);
-  try {
-    chrome.storage.onChanged.addListener(repaint);
-  } catch (ex) {}
-}
-
-function repaint() {
-  var scriptTemplate = _.template($("#scriptTemplate").val());
-  var script_ul = $("ul#scripts").empty();
-
-  scriptDAO.all(function (tweaks) {
-    tweaks.forEach(function (script) {
-      var list_item = $("<li/>").html(scriptTemplate(script));
-      $$(list_item, "a.delete").bind("click", item_delete_handler.bind(script));
-
-      $$(list_item, "a.preview").bind("click", function () {
-        $$(list_item, "pre").each(function () {
-          // @todo
-          this.toggleClass("hidden");
-        });
-      });
-
-      script_ul.append(list_item);
-    });
-  });
-}
 
 function item_delete_handler() {
   scriptDAO.rm(this.scriptType, this.scope, repaint);
-}
-
-function renderScope(scope) {
-  if (scope=="*")
-    return "All Websites";
-
-  var linkTitle = scopr.length < 50 ? scope : scope.substr(0,23) + "..." + scope.substr(scope.length-23);
-  return "<a href='"+(isURL(scope) ? scope : "http://"+scope) + "'>"+linkTitle+"</a>";
 }
