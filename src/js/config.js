@@ -53,7 +53,7 @@ var config = {
 			}
 		},
 		"Backbone": {
-			CDNJS: {
+			CloudFlare: {
 				placeholder: "http://cdnjs.cloudflare.com/ajax/libs/backbone.js/%version%/backbone-min.js",
 				versions: ["1.0.0", "0.9.10"]
 			}
@@ -181,7 +181,7 @@ var config = {
 			}
 		},
 		"socket.io": {
-			CDNJS: {
+			CloudFlare: {
 				placeholder: "http://cdnjs.cloudflare.com/ajax/libs/socket.io/%version%/socket.io.min.js",
 				versions: ["0.9.10"]
 			}

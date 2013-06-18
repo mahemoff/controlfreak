@@ -392,5 +392,17 @@ document.addEventListener("DOMContentLoaded", function () {
     repaint();
   });
 
+  // asynchronously load CodeMirror
+  [
+    "https://cdnjs.cloudflare.com/ajax/libs/codemirror/3.12.0/codemirror.min.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/codemirror/2.36.0/css.min.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/codemirror/2.36.0/javascript.min.js",
+    "js/codemirror.js"
+  ].forEach(function (src) {
+    var script = document.createElement("script");
+    script.src = src;
+    script.async = false;
 
+    document.head.appendChild(script);
+  });
 }, false);
