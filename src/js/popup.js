@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
   var freaks = {};
   var priority = ["page", "origin", "all"];
   var scopes = ["js", "css", "libs"];
+  var myCodeMirror;
 
   // show debug link when needed
   if (config.DEBUG)
@@ -117,6 +118,22 @@ document.addEventListener("DOMContentLoaded", function () {
       textarea.val(data).removeClass("small", "hidden").focus();
       $(".arena-zone select").addClass("hidden");
     }
+
+    switch (tabSelected) {
+      case "css":
+        myCodeMirror.setOption("mode", "css");
+        break;
+
+      case "js":
+        myCodeMirror.setOption("mode", "javascript");
+        break;
+
+      case "libs":
+        myCodeMirror.setOption("mode", "null");
+        break;
+    }
+
+    updateEditor();
   });
 
   // bind change libs handler
@@ -144,6 +161,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     currentLibs = libsSelected.concat(currentLibs);
     $(".arena-zone textarea").val(currentLibs.join("\n")).data("state", "changed");
+
+    updateEditor();
   });
 
   // bind keypress handler on textarea keypress
@@ -225,17 +244,32 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // asynchronously load CodeMirror
-  [
-    "js/codemirror.min.js",
-    "js/codemirror.css.min.js",
-    "js/codemirror.javascript.min.js",
-    "js/codemirror.js"
-  ].forEach(function (src) {
-    var script = document.createElement("script");
-    script.src = src;
-    script.async = false;
+  // initialize codemirror editor
+  var textarea = $(".arena-zone textarea");
+  var selectedTab = $(".tabs-zone .active[data-id]");
 
-    document.head.appendChild(script);
+  var mode;
+  if (selectedTab) {
+    mode = (selectedTab === "css") ? "css" : "javascript";
+  } else {
+    mode = "null";
+  }
+
+  myCodeMirror = CodeMirror.fromTextArea(textarea, {
+    matchBrackets: true,
+    mode: mode,
+    tabSize: 2,
+    lineNumbers: true,
+    dragDrop: false
   });
+
+  // bind textarea value update on codemirror value change
+  myCodeMirror.on("change", function (obj) {
+    textarea.val(obj.doc.getValue()).data("state", "changed");
+  });
+
+  function updateEditor() {
+    myCodeMirror.setSize("height", parseInt(getComputedStyle(textarea).height, 10));
+    myCodeMirror.setValue(textarea.value);
+  }
 }, false);
