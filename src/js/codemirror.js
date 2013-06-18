@@ -7,6 +7,12 @@
     dragDrop: false
   });
 
+  // bind textarea value update on codemirror value change
+  myCodeMirror.on("change", function (obj) {
+    textarea.val(obj.doc.getValue());
+  });
+
+  // bind update mode on tab select
   $$(".tabs-zone [data-id]").bind("click", function () {
     switch (this.data("id")) {
       case "css":
@@ -25,6 +31,7 @@
     updateEditor();
   });
 
+  // bind update size on option check
   $(".arena-zone select").bind("change", updateEditor);
 
   function updateEditor() {
