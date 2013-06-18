@@ -1,8 +1,22 @@
 (function () {
+  window.onerror = function () {
+    var msgError = msg + ' in ' + url + ' (line: ' + line + ')';
+    if (config.DEBUG) {
+      alert(msgError);
+    }
+
+    // @todo send stat
+  };
+
   // migration process
   chrome.runtime.onInstalled.addListener(function (details) {
-    if (details.reason === "update" && (/^0\./.test(details.previousVersion) || /^1\./.test(details.previousVersion))) {
-      migrate();
+    if (details.reason === "update") {
+      // clear downloaded libraries on update
+      deleteDownloadedLibs();
+
+      if (/^0\./.test(details.previousVersion) || /^1\./.test(details.previousVersion)) {
+        migrate();
+      }
     }
   });
 
@@ -184,27 +198,30 @@
     }
   }
 
-  // xmlhttprequests
-  function request(url, headers, callback) {
-    if (typeof headers === "function") {
-      callback = headers;
-      headers = {};
-    }
+  // clear fs.root from downloaded files
+  function deleteDownloadedLibs() {
+    requestFileSystem(function (err, fsLink) {
+      if (err)
+        return;
 
+      var reader = fsLink.root.createReader();
+      reader.readEntries(function (results) {
+        for (var i = 0; i < results.length; i++) {
+          results.item(i).remove(function () {});
+        }
+      });
+    });
+  }
+
+  // xmlhttprequests
+  function request(url, callback) {
     var xhr = new XMLHttpRequest;
     xhr.open("GET", url, true);
-
-    for (var header in headers) {
-      if (headers[header]) {
-        xhr.setRequestHeader(header, headers[header]);
-      }
-    }
 
     xhr.onload = function () {
       callback(null, {
         status: xhr.status,
-        lastModified: xhr.getResponseHeader("last-modified"),
-        eTag: xhr.getResponseHeader("etag"),
+        expires: xhr.getResponseHeader("expires"),
         data: xhr.responseText
       });
     };
@@ -218,7 +235,7 @@
 
   // get filesystem point
   function requestFileSystem(callback) {
-    (window.webkitRequestFileSystem || window.requestFileSystem)(window.TEMPORARY, 0, function (windowFsLink) {
+    (window.webkitRequestFileSystem || window.requestFileSystem)(window.PERSISTENT, 0, function (windowFsLink) {
       callback(null, windowFsLink);
     }, function (err) {
       callback("Filesystem not available: " + err);
@@ -237,18 +254,17 @@
       }
 
       var fileName = url.replace(/[^\w]+/g, "") + ".json";
-      var data;
-
       var requestCallback = function (err, res) {
         if (err)
-          return callback(data || errComment);
+          return callback(errComment);
 
-        if (res.status === 304)
-          return callback(data);
+        if (!/^2/.test(res.status))
+          return callback(errComment + res.data);
 
         fsLink.root.getFile(fileName, {create: true}, function (fileEntry) {
           fileEntry.createWriter(function (fileWriter) {
             delete res.status;
+            res.expires = res.expires ? (new Date(res.expires)).getTime() : Date.now();
             var blob = new Blob([JSON.stringify(res, null, "\t")], {type: "text/plain"});
 
             fileWriter.write(blob);
@@ -268,12 +284,12 @@
           reader.onloadend = function (evt) {
             try {
               var cacheData = JSON.parse(reader.result);
-              data = cacheData.data;
+              if (cacheData.expires > Date.now()) {
+                return callback(cacheData.data);
+              }
+            } catch (ex) {}
 
-              request(url, {"If-Modified-Since": cacheData.lastModified, "If-None-Match": cacheData.eTag}, requestCallback);
-            } catch (ex) {
-              request(url, requestCallback);
-            }
+            request(url, requestCallback);
           };
 
           reader.readAsText(file);
