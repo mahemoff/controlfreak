@@ -1,7 +1,17 @@
 (function () {
   var textarea = $(".arena-zone textarea");
+  var selectedTab = $(".tabs-zone .active[data-id]");
+
+  var mode;
+  if (selectedTab) {
+    mode = (selectedTab === "css") ? "css" : "javascript";
+  } else {
+    mode = "null";
+  }
+
   var myCodeMirror = CodeMirror.fromTextArea(textarea, {
-    mode: "css",
+    matchBrackets: true,
+    mode: mode,
     tabSize: 2,
     lineNumbers: true,
     dragDrop: false
@@ -9,7 +19,7 @@
 
   // bind textarea value update on codemirror value change
   myCodeMirror.on("change", function (obj) {
-    textarea.val(obj.doc.getValue());
+    textarea.val(obj.doc.getValue()).data("state", "changed");
   });
 
   // bind update mode on tab select

@@ -22,7 +22,7 @@
     "persistent": false
   },
   "options_page": "src/scripts.html",
-  "content_security_policy" : "script-src 'self' https://ssl.google-analytics.com https://cdnjs.cloudflare.com; object-src 'self'",
+  "content_security_policy" : "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
 
 
   "content_scripts": [{

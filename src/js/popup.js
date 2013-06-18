@@ -50,6 +50,11 @@ document.addEventListener("DOMContentLoaded", function () {
     if (this.hasClass("active"))
       return;
 
+    // save temporary unsaved value
+    var textarea = $(".arena-zone textarea");
+    if (textarea.data("state") === "changed")
+      $("#save").click();
+
     $$(this.parentNode, "li").removeClass("active");
     this.addClass("active");
 
@@ -72,6 +77,11 @@ document.addEventListener("DOMContentLoaded", function () {
     if (this.hasClass("active"))
       return;
 
+    // save temporary unsaved value
+    var textarea = $(".arena-zone textarea");
+    if (textarea.data("state") === "changed")
+      $("#save").click();
+
     var scope = $(".scope-zone .active").data("id");
     var el = this;
     var tabSelected = this.data("id");
@@ -91,7 +101,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (tabSelected === "libs") {
       data = data || [];
-      $(".arena-zone textarea").val(data.join("\n")).addClass("small").removeClass("hidden");
+      textarea.val(data.join("\n")).addClass("small").removeClass("hidden");
       $(".arena-zone select").removeClass("hidden").focus();
 
       // select options
@@ -104,7 +114,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     } else {
       data = data || "";
-      $(".arena-zone textarea").val(data).removeClass("small", "hidden").focus();
+      textarea.val(data).removeClass("small", "hidden").focus();
       $(".arena-zone select").addClass("hidden");
     }
   });
@@ -133,15 +143,21 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     currentLibs = libsSelected.concat(currentLibs);
-    $(".arena-zone textarea").val(currentLibs.join("\n"));
+    $(".arena-zone textarea").val(currentLibs.join("\n")).data("state", "changed");
+  });
+
+  // bind keypress handler on textarea keypress
+  $(".arena-zone textarea").bind("keypress", function () {
+    this.data("state", "changed")
   });
 
   // bind save action handler
   $("#save").bind("click", function () {
     var scope = $(".scope-zone .active").data("id");
     var tab = $(".tabs-zone .active").data("id");
-    var areaData = $(".arena-zone textarea").val().trim();
+    var areaData = $(".arena-zone textarea").data("state", "saved").val().trim();
 
+    var cacheKey = tab + "_" + scope;
     var storageType = localStorage.type === "sync" ? "sync" : "local";
     var storageKey = (scope === "all")
       ? tab + "-*"
@@ -154,11 +170,18 @@ document.addEventListener("DOMContentLoaded", function () {
         : areaData;
 
       chrome.storage[storageType].set(saveData);
+      freaks[cacheKey] = saveData[storageKey];
     } else {
       chrome.storage[storageType].remove(storageKey);
+      delete freaks[cacheKey];
     }
+
+    // chrome.runtime.sendMessage({action: "search", url: tab.url}, function (res) {
+    //   // cache control freaks
+    //   freaks = res;
   });
 
+  // @todo
   $("#reset").bind("click", function () {
     location.reload();
   });
@@ -200,203 +223,13 @@ document.addEventListener("DOMContentLoaded", function () {
         $(".tabs-zone li[data-id='js']").click();
       }
     });
-
-
-
-    // search for all tweaks for this page on css/js/libs
-    // then select proper tab on "all-origin-page" and "css-js/lib"
-
-    // chrome.runtime.sendMessage({action: "search", type: "js", url: tab.url}, function (res) {
-
-    // });
-
-
-
-
-
-    // currentPage = new Page(tab.url);
-    //
-    // $("#scopeDisplay").html(scopeLevel=="all" ? "all sites" : (scopeLevel=="host" ? currentPage.getHost() : currentPage.getURL()));
-    // load scripts and fill "defined" classes
-
-
-
-    return;
-
-
-
-    // initialize CodeMirror editor
-    var editor = CodeMirror.fromTextArea($("#code"), {
-      mode: translatedScriptType(),
-      height: "200px",
-      tabMode: "indent",
-      saveFunction: save, // map cmd+s to the save button's function
-      matchBrackets: true, // auto insert parens where needed
-      lineNumbers: true
-    });
-
-    if (!localStorage["scopeLevel"]) localStorage["scopeLevel"] = "all";
-    if (!localStorage["tab"]) localStorage["tab"] = "js";
-
-    updateScopeLevel(localStorage["scopeLevel"]);
-    updateTab(localStorage["tab"]);
-
-    function translatedScriptType() {
-      return localStorage["tab"] === "js" ? "javascript" : "css"
-    }
-
-    function showLibs() {
-      $("#libs").css("display", "block");
-    }
-
-    function updateScopeLevel(scopeLevel) {
-      localStorage["scopeLevel"] = scopeLevel;
-      repaint();
-    }
-
-    function updateTab(scriptType) {
-      save();
-      localStorage["tab"] = scriptType;
-      repaint();
-    }
-
-    function repaint() {
-      $(".active").removeClass("active");
-      var scopeLevel=localStorage["scopeLevel"], tab=localStorage["tab"];
-
-      editor.setOption("mode", translatedScriptType() );
-
-      $("#scopeDisplay").html(scopeLevel=="all" ? "all sites" : (scopeLevel=="host" ? currentPage.getHost() : currentPage.getURL()));
-      $(".scopeLevel[id="+scopeLevel+"]").addClass("active");
-
-      scriptDAO.load(localStorage["scriptType"], getScope(), function (contents) {
-        editor.setValue(contents||"");
-
-        $(".tab[id="+tab+"]").addClass("active");
-        if (tab == "libs") {
-          repaintLibs();
-        } else {
-          repaintEditor();
-        }
-
-        repaintPresenceIndicators();
-      });
-    }
-
-    function repaintLibs() {
-      radio($("#editLibs"));
-      $("#popularLibs").val("");
-
-      scriptDAO.load("libs", getScope(), function (contents) {
-        contents = contents || [];
-        $("#libsList").val(contents.join("\n"));
-      });
-    }
-
-    function repaintEditor() {
-      radio($(".CodeMirror"));
-      editor.focus();
-
-      scriptDAO.load(localStorage["tab"], getScope(), function (contents) {
-        editor.setValue(contents||"");
-      });
-    }
-
-    function repaintPresenceIndicators(tab, scopeLevel) {
-      // TODO maybe change this to show if any? are relevant
-      $$(".scopeLevel").each(function () {
-        var el = this;
-
-        scriptDAO.defined(tab, getScope(this.id), function (defined) {
-          if (defined) {
-            el.addClass("defined");
-            el.removeClass("undefined");
-          } else {
-            el.addClass("defined");
-            el.removeClass("undefined");
-          }
-        });
-      });
-
-      $$(".tab").each(function () {
-        var el = this;
-
-        scriptDAO.defined(this.id, getScope(), function (defined) {
-          if (defined) {
-            el.addClass("defined");
-            el.removeClass("undefined");
-          } else {
-            el.removeClass("defined");
-            el.addClass("undefined");
-          }
-        });
-      });
-    }
-
-    // only need to save current tab, since switching tab forces a save
-    function save() {
-      var saveData;
-
-      if (localStorage["tab"]=="libs") {
-        var libsList = $("#libsList").val().trim();
-        var libs = libsList.length ? libsList.split(/[ \t\n]+/) : [];
-        saveData = [libs, "libs", getScope()];
-      } else {
-        saveData = [editor.getValue(), localStorage["tab"], getScope()];
-      }
-
-      scriptDAO.save.apply(scriptDAO, saveData.concat(repaint));
-    }
-
-    function getScope(scopeLevel) {
-      var scopeLevel = scopeLevel || localStorage["scopeLevel"];
-      return scopeLevel=="all" ? "*" : (scopeLevel=="host" ? currentPage.getHost() : currentPage.getURL());
-    }
-
-    function radio(el) {
-      Array.prototype.forEach.call(el.parentNode.childNodes, function (elem) {
-        if (el === elem) {
-          el.css("display", "block");
-        } else {
-          el.css("display", "none");
-        }
-      });
-    }
-
-    $$(".scopeLevel").bind("click", function () {
-      updateScopeLevel(this.id);
-    });
-
-    $$(".tab").bind("click", function () {
-      updateTab(this.id);
-    });
-
-    $("#save").bind("click", save);
-
-    // setup libs
-    $("#libsList").bind("keyup", function () {
-      // dispatch change event
-    });
-
-    $("#popularLibs").bind("change", function () {
-      var libsList = $("#libsList");
-
-      var libsListValue = libsList.val();
-      if (libsListValue.length)
-        libsListValue+="\n";
-
-      libsListValue += this.val();
-      libsList.val(libsListValue);
-    });
-
-    repaint();
   });
 
   // asynchronously load CodeMirror
   [
-    "https://cdnjs.cloudflare.com/ajax/libs/codemirror/3.12.0/codemirror.min.js",
-    "https://cdnjs.cloudflare.com/ajax/libs/codemirror/2.36.0/css.min.js",
-    "https://cdnjs.cloudflare.com/ajax/libs/codemirror/2.36.0/javascript.min.js",
+    "js/codemirror.min.js",
+    "js/codemirror.css.min.js",
+    "js/codemirror.javascript.min.js",
     "js/codemirror.js"
   ].forEach(function (src) {
     var script = document.createElement("script");

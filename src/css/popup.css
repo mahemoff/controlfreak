@@ -12,12 +12,11 @@ a, a:visited {
 
 /* see http://code.google.com/p/chromium/issues/detail?id=26152 */
 html {
-	width: 500px;
+	width: 600px;
 }
 
 body {
 	border: none;
-	width: 500px;
 }
 
 #wrapper {
