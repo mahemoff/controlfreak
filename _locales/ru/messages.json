@@ -1,0 +1,53 @@
+{
+  "popupWindowTitle": {
+    "message": "Control freak"
+  },
+  "popupScopeAll": {
+    "message": "Везде"
+  },
+  "popupScopeOrigin": {
+    "message": "Этот сайт"
+  },
+  "popupScopePage": {
+    "message": "Эта страница"
+  },
+  "popupScopeDisplayAll": {
+    "message": "все сайты"
+  },
+  "popupTabsLibs": {
+    "message": "Библиотеки"
+  },
+  "popupManageAll": {
+    "message": "список"
+  },
+  "popupSaveButtonTitle": {
+    "message": "Сохранить"
+  },
+  "popupResetButtonTitle": {
+    "message": "Вернуть"
+  },
+  "listWindowTitle": {
+    "message": " Скрипты Control Freak"
+  },
+  "listClearTweaks": {
+    "message": "Удалить все скрипты"
+  },
+  "listSyncTweaks": {
+    "message": "Синхронихировать скрипты (ВНИМАНИЕ: скрипты длиной более %quota% байт не будут сохраняться)"
+  },
+  "listClearWarning": {
+    "message": "Скрипты будут удалены НАВСЕГДА. Продолжить?"
+  },
+  "listScopeAll": {
+    "message": "Везде"
+  },
+  "listDelete": {
+    "message": "Удалить"
+  },
+  "listOpenNewTab": {
+    "message": "Откроется в новом табе"
+  },
+  "listRemoveWarning": {
+    "message": "Этот скрипт будет удален НАВСЕГДА. Продолжить?"
+  }
+}

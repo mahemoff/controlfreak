@@ -4,6 +4,7 @@
   "manifest_version": 2,
   "minimum_chrome_version" : "22",
   "description": "Greasemonkey-like mods, but quicker to tweak",
+  "default_locale": "en",
 
   "icons": {
     "16":  "images/system16.png",

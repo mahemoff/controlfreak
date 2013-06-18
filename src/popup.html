@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-  <title>Control freak popup window</title>
+  <title></title>
 
   <script src="js/config.js"></script>
   <script src="js/dom.js"></script>
@@ -16,12 +16,12 @@
 </head>
 <body>
 
-<div id="wrapper">
+<div id="wrapper" class="hidden">
   <div class="scope-zone">
     <ul class="scopeLevels">
-      <li data-id="all" class="scopeLevel" data-title="all sites">All</li>
-      <li data-id="origin" class="scopeLevel">This domain</li>
-      <li data-id="page" class="scopeLevel">This page</li>
+      <li data-id="all" class="scopeLevel" data-title="{i18n.popupScopeDisplayAll}">{i18n.popupScopeAll}</li>
+      <li data-id="origin" class="scopeLevel">{i18n.popupScopeOrigin}</li>
+      <li data-id="page" class="scopeLevel">{i18n.popupScopePage}</li>
     </ul>
     <div id="scopeDisplay"></div>
   </div>
@@ -30,12 +30,12 @@
     <ul>
       <li data-id="js">Javascript</li>
       <li data-id="css">CSS</li>
-      <li data-id="libs">Libs</li>
+      <li data-id="libs">{i18n.popupTabsLibs}</li>
     </ul>
 
     <div class="manage-links">
       <a target="_blank" class="hidden" href="popup.html">debug</a>
-      <a target="_blank" href="scripts.html">manage all</a>
+      <a target="_blank" href="scripts.html">{i18n.popupManageAll}</a>
     </div>
   </div>
 
@@ -44,8 +44,8 @@
     <textarea id="code" class="hidden"></textarea>
   </div>
 
-  <button id="save" type="button">Save</button>
-  <button id="reset" type="button">Reset</button>
+  <button id="save" type="button">{i18n.popupSaveButtonTitle}</button>
+  <button id="reset" type="button">{i18n.popupResetButtonTitle}</button>
 </div>
 </body>
 </html>

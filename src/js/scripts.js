@@ -1,9 +1,22 @@
 document.addEventListener("DOMContentLoaded", function () {
-  $("#quota").html(chrome.storage.sync.QUOTA_BYTES_PER_ITEM);
+  document.title = chrome.i18n.getMessage("listWindowTitle");
+
+  var html = document.body.html();
+  var regex = /\{i18n\.([\w]+)\}/g;
+  var matches;
+  while (matches = regex.exec(html)) {
+    html = html.replace(matches[0], chrome.i18n.getMessage(matches[1]));
+    regex.lastIndex -= (matches[0].length - 1);
+  }
+
+  document.body.html(html).removeClass("hidden");
+
+  var labelHTML = $("#sync-option").html();
+  $("#sync-option").html(labelHTML.replace("%quota%", "<span id='quota'>" + chrome.storage.sync.QUOTA_BYTES_PER_ITEM + "</span>"));
 
   // bind clear freaks handler
   $("#clear").bind("click", function () {
-    if (!confirm("This will delete all of your Control Freak scripts PERMANENTLY. Proceed?"))
+    if (!confirm(chrome.i18n.getMessage("listClearWarning")))
       return;
 
     var storageType = localStorage.type === "sync" ? "sync" : "local";
@@ -72,16 +85,16 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (script.scope === "*")
-          freakHTML = freakHTML.replace("{scope}", "All websites");
+          freakHTML = freakHTML.replace("{scope}", chrome.i18n.getMessage("listScopeAll"));
         else
-          freakHTML = freakHTML.replace("{scope}", $("<a/>").attr({href: script.scope, target: "_blank", title: "Open in a new tab"}).html(script.scope).outerHTML);
+          freakHTML = freakHTML.replace("{scope}", $("<a/>").attr({href: script.scope, target: "_blank", title: chrome.i18n.getMessage("listOpenNewTab")}).html(script.scope).outerHTML);
 
         var list_item = $("<li/>").html(freakHTML).data("key", script.scriptType + "-" + script.scope);
         script_ul.append(list_item);
       });
 
       $$(script_ul, "a.delete").bind("click", function (evt) {
-        if (confirm("This will delete this script PERMANENTLY! Proceed?")) {
+        if (confirm(chrome.i18n.getMessage("listRemoveWarning"))) {
           var storageType = localStorage.type === "sync" ? "sync" : "local";
           var key = this.closestParent("li").data("key");
           chrome.storage[storageType].remove(key);

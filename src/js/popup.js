@@ -1,4 +1,16 @@
 document.addEventListener("DOMContentLoaded", function () {
+  document.title = chrome.i18n.getMessage("popupWindowTitle");
+
+  var html = $("#wrapper").html();
+  var regex = /\{i18n\.([\w]+)\}/g;
+  var matches;
+  while (matches = regex.exec(html)) {
+    html = html.replace(matches[0], chrome.i18n.getMessage(matches[1]));
+    regex.lastIndex -= (matches[0].length - 1);
+  }
+
+  $("#wrapper").html(html).removeClass("hidden");
+
   var freaks = {};
   var priority = ["page", "origin", "all"];
   var scopes = ["js", "css", "libs"];
@@ -194,10 +206,6 @@ document.addEventListener("DOMContentLoaded", function () {
       chrome.storage[storageType].remove(storageKey);
       delete freaks[cacheKey];
     }
-
-    // chrome.runtime.sendMessage({action: "search", url: tab.url}, function (res) {
-    //   // cache control freaks
-    //   freaks = res;
   });
 
   // @todo

@@ -2,19 +2,6 @@ var config = {
 	CHROME_WEBSTORE_ID: "jgnchehlaggacipokckdlbdemfeohdhc",
 	GA_STAT_ID: "UA-20919085-7", // Google Analytics
 
-	get NAME() {
-		var name;
-
-		try {
-			name = chrome.runtime.getManifest().name;
-		} catch (e) {
-			name = chrome.i18n.getMessage("appName");
-		}
-
-		delete this.NAME;
-		return this.NAME = name;
-	},
-
 	get ID() {
 		var id;
 

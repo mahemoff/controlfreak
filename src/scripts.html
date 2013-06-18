@@ -1,6 +1,8 @@
 <!DOCTYPE HTML>
 <html>
 <head>
+  <title></title>
+
   <script src="js/config.js"></script>
   <script src="js/dom.js"></script>
   <script src="js/scripts.js"></script>
@@ -10,16 +12,16 @@
   <link rel="stylesheet" href="css/scripts.css">
   <link rel="stylesheet" href="https://yandex.st/highlightjs/7.3/styles/default.min.css">
 </head>
-<body>
+<body class="hidden">
 
-<h1>Control Freak Scripts</h1>
+<h1>{i18n.listWindowTitle}</h1>
 
 <div id="controls">
   <label>
-    <button id="clear">Clear all tweaks</button>
+    <button id="clear">{i18n.listClearTweaks}</button>
   </label>
-  <label>
-    <input type="checkbox" id="sync"> Sync my tweaks (N.B.: tweaks more than <span id="quota"></span> bytes length won't be synced properly)
+  <label id="sync-option">
+    <input type="checkbox" id="sync"> {i18n.listSyncTweaks}
   </label>
 </div>
 
@@ -31,7 +33,7 @@
       {scope}
     </h3>
     <div class="manage-links">
-      <a class="delete" href="">Delete</a>
+      <a class="delete" href="">{i18n.listDelete}</a>
     </div>
 
     <pre><code class="{highlight}">{text}</code></pre>
