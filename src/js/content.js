@@ -8,8 +8,10 @@
     window.addEventListener("popstate", informBackend, false);
 
     function informBackend() {
-        if (lastVisitedURL !== document.location.href) {
-            lastVisitedURL = document.location.href;
+        var currentURL = document.location.href.replace(new RegExp(document.location.hash + "$"), "");
+
+        if (lastVisitedURL !== currentURL) {
+            lastVisitedURL = currentURL;
             chrome.runtime.sendMessage({action: "content", url: lastVisitedURL});
         }
     }
