@@ -70,18 +70,22 @@ li .manage-links {
 }
 
 li pre {
-  font-family: Monaco, "Lucida Console", monospace;
-  font-size: 0.75em;
   display: block;
   border-radius: 3px;
   margin-top: 8px;
   background: #ccc;
+  max-height: 160px;
+  overflow: auto;
+}
+
+li pre code {
+  display: block;
+  font-family: Monaco, "Lucida Console", monospace;
+  font-size: .75em;
   color: #333;
   box-sizing: border-box;
   padding: 10px;
   white-space: pre-wrap;
-  max-height: 160px;
-  overflow: auto;
 }
 
 li a.delete, li a.preview {

@@ -65,6 +65,12 @@ document.addEventListener("DOMContentLoaded", function () {
         freakHTML = freakHTML.replace("{type}", script.scriptType.toUpperCase());
         freakHTML = freakHTML.replace("{text}", (typeof script.text === "string") ? script.text : JSON.stringify(script.text, null, "  "));
 
+        switch (script.scriptType) {
+          case "js": freakHTML = freakHTML.replace("{highlight}", "javascript"); break;
+          case "css": freakHTML = freakHTML.replace("{highlight}", "css"); break;
+          case "libs": freakHTML = freakHTML.replace("{highlight}", "json"); break;
+        }
+
         if (script.scope === "*")
           freakHTML = freakHTML.replace("{scope}", "All websites");
         else
@@ -83,12 +89,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         evt.preventDefault();
       });
+
+      // highlight
+      $$("pre code").each(function () {
+        hljs.highlightBlock(this);
+      });
     });
   }
 }, false);
-
-
-
-function item_delete_handler() {
-  scriptDAO.rm(this.scriptType, this.scope, repaint);
-}
