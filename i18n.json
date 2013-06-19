@@ -1,5 +1,12 @@
 [
   {
+    "key": "appDescription",
+    "messages": {
+      "en": "Greasemonkey-like mods, but quicker to tweak. Create and apply your own synced tweaks to web pages",
+      "ru": "Создавайте свои простые и удобные скрипты и стили наподобие Greasemonkey для любых страниц в интернете"
+    }
+  },
+  {
     "key": "popupWindowTitle",
     "messages": {
       "en": "Control freak popup window",
