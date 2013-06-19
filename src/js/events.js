@@ -108,6 +108,14 @@
 
         return false;
         break;
+
+      case "export":
+        exportUserScript(req.url, function (err, smth) {
+          sendResponse(err ? {error: err} : smth);
+        });
+
+        return true;
+        break;
     }
   });
 
@@ -299,6 +307,42 @@
       }, function (err) {
         request(url, requestCallback);
       });
+    });
+  }
+
+  // parse GreaseMonkey userscript metadata
+  function parseMetadataBlock(contents) {
+    var output = {};
+    var matches = contents.match(/\/\/\s==UserScript==(.|[\r\n])+\/\/\s==\/UserScript==/gm);
+    if (!matches)
+      return output;
+
+    var regex = /\/\/\s@(require|include|exclude|match)[^\w]*?(.+)/gm;
+    var execMatches;
+    while (execMatches = regex.exec(matches[0])) {
+      output[execMatches[1]] = output[execMatches[1]] || [];
+      output[execMatches[1]].push(execMatches[2].trim());
+    }
+
+    return output;
+  }
+
+  // export GreaseMonkey userscript to out format
+  function exportUserScript(url, callback) {
+    request(url, function (err, res) {
+      if (err)
+        return callback("Error while downloading resource: " + err);
+
+      if (res.status !== 200)
+        return callback("Error while downloading resource: response status " + res.status);
+
+      if (res.data.indexOf("GM_") !== -1)
+        return callback("We do not yet support GreaseMonkey scripts which use GreaseMonkey own API functions, such as GM_openInTab, GM_registerMenuCommand etc");
+
+      var scriptData = res.data;
+      var metadata = parseMetadataBlock(scriptData);
+
+      callback(null, metadata);
     });
   }
 })();
