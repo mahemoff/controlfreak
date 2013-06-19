@@ -183,6 +183,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // bind save action handler
   $("#save").bind("click", function () {
+    var btn = this.html(chrome.i18n.getMessage("popupSaveButtonTitleSaving") + "...").attr("disabled", true);
     var scope = $(".scope-zone .active").data("id");
     var tab = $(".tabs-zone .active").data("id");
     var areaData = $(".arena-zone textarea").data("state", "saved").val().trim();
@@ -193,16 +194,23 @@ document.addEventListener("DOMContentLoaded", function () {
       ? tab + "-*"
       : tab + "-" + $("#scopeDisplay").text();
 
+    var onSaved = function () {
+      btn.html(chrome.i18n.getMessage("popupSaveButtonTitleSaved") + "!");
+      window.setTimeout(function () {
+        btn.removeAttr("disabled").html(chrome.i18n.getMessage("popupSaveButtonTitle"));
+      }, 1000);
+    };
+
     if (areaData.length) {
       var saveData = {};
       saveData[storageKey] = (tab === "libs")
         ? areaData.split("\n")
         : areaData;
 
-      chrome.storage[storageType].set(saveData);
+      chrome.storage[storageType].set(saveData, onSaved);
       freaks[cacheKey] = saveData[storageKey];
     } else {
-      chrome.storage[storageType].remove(storageKey);
+      chrome.storage[storageType].remove(storageKey, onSaved);
       delete freaks[cacheKey];
     }
   });

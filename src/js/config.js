@@ -83,11 +83,6 @@ var config = {
 				versions: ["7.3", "6.2"]
 			}
 		},
-		"json2.js": {
-			Yandex: {
-				placeholder: "http://yandex.st/json2/2011-10-19/json2.min.js"
-			}
-		},
 		"jQuery": {
 			Google: {
 				placeholder: "http://ajax.googleapis.com/ajax/libs/jquery/%version%/jquery.min.js",

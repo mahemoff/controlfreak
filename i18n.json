@@ -56,6 +56,20 @@
     }
   },
   {
+    "key": "popupSaveButtonTitleSaving",
+    "messages": {
+      "en": "Saving",
+      "ru": "Сохраняю"
+    }
+  },
+  {
+    "key": "popupSaveButtonTitleSaved",
+    "messages": {
+      "en": "Saved",
+      "ru": "Сохранено"
+    }
+  },
+  {
     "key": "popupResetButtonTitle",
     "messages": {
       "en": "Reset",
