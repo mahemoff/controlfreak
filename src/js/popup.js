@@ -1,15 +1,14 @@
 document.addEventListener("DOMContentLoaded", function () {
   document.title = chrome.i18n.getMessage("popupWindowTitle");
 
-  var html = $("#wrapper").html();
-  var regex = /\{i18n\.([\w]+)\}/g;
-  var matches;
-  while (matches = regex.exec(html)) {
-    html = html.replace(matches[0], chrome.i18n.getMessage(matches[1]));
-    regex.lastIndex -= (matches[0].length - 1);
-  }
+  var placeholders = ["popupScopeDisplayAll", "popupScopeAll", "popupScopeOrigin", "popupScopePage", "popupTabsLibs", "popupManageAll", "popupSaveButtonTitle", "popupResetButtonTitle"];
+  var tplData = {};
+  placeholders.forEach(function (placeholder) {
+    tplData[placeholder] = chrome.i18n.getMessage(placeholder);
+  });
 
-  $("#wrapper").html(html).removeClass("hidden");
+  var html = Templates.render("popup", tplData);
+  document.body.html(html);
 
   var freaks = {};
   var priority = ["page", "origin", "all"];

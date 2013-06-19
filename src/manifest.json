@@ -15,20 +15,20 @@
   "browser_action": {
     "default_icon": "images/system32.png",
     "default_title": "Control Freak",
-    "default_popup": "src/popup.html"
+    "default_popup": "popup.html"
   },
 
   "background": {
-    "scripts": ["src/js/events.js"],
+    "scripts": ["js/events.js"],
     "persistent": false
   },
-  "options_page": "src/scripts.html",
+  "options_page": "scripts.html",
   "content_security_policy" : "script-src 'self' https://ssl.google-analytics.com https://yandex.st; object-src 'self'",
 
 
   "content_scripts": [{
     "matches": ["*://*/*"],
-    "js": ["src/js/content.js"]
+    "js": ["js/content.js"]
   }],
 
   "permissions": ["tabs", "storage", "*://*/*", "unlimitedStorage"]

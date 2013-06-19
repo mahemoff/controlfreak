@@ -32,9 +32,6 @@ a,a:visited {
   font-weight: bold;
 }
 
-/* Template Styles */
-.template { display: none; }
-
 li {
   margin: 0 0 0.5em;
   display: block;
@@ -65,6 +62,7 @@ li h3 span.scriptType {
   font-size: x-small;
   background: #cfc;
   padding: 2px;
+  margin-right: 8px;
 }
 
 li .manage-links {

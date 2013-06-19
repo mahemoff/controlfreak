@@ -1,0 +1,121 @@
+[
+  {
+    "key": "popupWindowTitle",
+    "messages": {
+      "en": "Control freak popup window",
+      "ru": "Control freak"
+    }
+  },
+  {
+    "key": "popupScopeAll",
+    "messages": {
+      "en": "All",
+      "ru": "Везде"
+    }
+  },
+  {
+    "key": "popupScopeOrigin",
+    "messages": {
+      "en": "This domain",
+      "ru": "Этот сайт"
+    }
+  },
+  {
+    "key": "popupScopePage",
+    "messages": {
+      "en": "This page",
+      "ru": "Эта страница"
+    }
+  },
+  {
+    "key": "popupScopeDisplayAll",
+    "messages": {
+      "en": "all sites",
+      "ru": "все сайты"
+    }
+  },
+  {
+    "key": "popupTabsLibs",
+    "messages": {
+      "en": "Libs",
+      "ru": "Библиотеки"
+    }
+  },
+  {
+    "key": "popupManageAll",
+    "messages": {
+      "en": "manage all",
+      "ru": "список"
+    }
+  },
+  {
+    "key": "popupSaveButtonTitle",
+    "messages": {
+      "en": "Save",
+      "ru": "Сохранить"
+    }
+  },
+  {
+    "key": "popupResetButtonTitle",
+    "messages": {
+      "en": "Reset",
+      "ru": "Вернуть"
+    }
+  },
+  {
+    "key": "listWindowTitle",
+    "messages": {
+      "en": "Control Freak Scripts",
+      "ru": " Скрипты Control Freak"
+    }
+  },
+  {
+    "key": "listClearTweaks",
+    "messages": {
+      "en": "Clear all tweaks",
+      "ru": "Удалить все скрипты"
+    }
+  },
+  {
+    "key": "listSyncTweaks",
+    "messages": {
+      "en": "Sync my tweaks (N.B.: tweaks more than %quota% bytes length won't be synced properly)",
+      "ru": "Синхронихировать скрипты (ВНИМАНИЕ: скрипты длиной более %quota% байт не будут сохраняться)"
+    }
+  },
+  {
+    "key": "listClearWarning",
+    "messages": {
+      "en": "This will delete all of your Control Freak scripts PERMANENTLY. Proceed?",
+      "ru": "Скрипты будут удалены НАВСЕГДА. Продолжить?"
+    }
+  },
+  {
+    "key": "listScopeAll",
+    "messages": {
+      "en": "All websites",
+      "ru": "Везде"
+    }
+  },
+  {
+    "key": "listDelete",
+    "messages": {
+      "en": "Delete",
+      "ru": "Удалить"
+    }
+  },
+  {
+    "key": "listOpenNewTab",
+    "messages": {
+      "en": "Open in a new tab",
+      "ru": "Откроется в новом табе"
+    }
+  },
+  {
+    "key": "listRemoveWarning",
+    "messages": {
+      "en": "This will delete this script PERMANENTLY! Proceed?",
+      "ru": "Этот скрипт будет удален НАВСЕГДА. Продолжить?"
+    }
+  }
+]

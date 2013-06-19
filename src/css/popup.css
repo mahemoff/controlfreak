@@ -50,7 +50,6 @@ body {
 
 .tabs-zone ul {
   list-style: none;
-  font-size: 0;
   margin-bottom: -1px;
   margin-left: 12px;
   display: inline-block;
@@ -87,6 +86,7 @@ body {
 
 .tabs-zone .manage-links a {
   font-size: 14px;
+  margin-left: 8px;
 }
 
 .arena-zone {
@@ -124,7 +124,7 @@ body {
   box-sizing: border-box;
 }
 
-#save {
+button {
   margin: 2px 0 10px 12px;
   cursor: pointer;
 }

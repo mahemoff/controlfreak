@@ -1,15 +1,14 @@
 document.addEventListener("DOMContentLoaded", function () {
   document.title = chrome.i18n.getMessage("listWindowTitle");
 
-  var html = document.body.html();
-  var regex = /\{i18n\.([\w]+)\}/g;
-  var matches;
-  while (matches = regex.exec(html)) {
-    html = html.replace(matches[0], chrome.i18n.getMessage(matches[1]));
-    regex.lastIndex -= (matches[0].length - 1);
-  }
+  var placeholders = ["listWindowTitle", "listClearTweaks", "listSyncTweaks"];
+  var tplData = {};
+  placeholders.forEach(function (placeholder) {
+    tplData[placeholder] = chrome.i18n.getMessage(placeholder);
+  });
 
-  document.body.html(html).removeClass("hidden");
+  var html = Templates.render("scripts", tplData);
+  document.body.html(html);
 
   var labelHTML = $("#sync-option").html();
   $("#sync-option").html(labelHTML.replace("%quota%", "<span id='quota'>" + chrome.storage.sync.QUOTA_BYTES_PER_ITEM + "</span>"));
@@ -20,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
 
     var storageType = localStorage.type === "sync" ? "sync" : "local";
-    chrome.storage[storageType].clear(repaint);
+    chrome.storage[storageType].clear();
   });
 
   // update sync checkbox state
@@ -46,11 +45,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function repaint() {
     var script_ul = $("#scripts").empty();
-    var tplHTML = $(".template").html();
     var storageType = localStorage.type === "sync" ? "sync" : "local";
 
     chrome.storage[storageType].get(null, function (obj) {
       var scripts = [];
+      var tplData = [];
 
       for (var key in obj) {
         var matches = key.match(/^(js|css|libs)-(.+)/);
@@ -74,24 +73,30 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 
       scripts.forEach(function (script) {
-        var freakHTML = tplHTML;
-        freakHTML = freakHTML.replace("{type}", script.scriptType.toUpperCase());
-        freakHTML = freakHTML.replace("{text}", (typeof script.text === "string") ? script.text : JSON.stringify(script.text, null, "  "));
+        var highlight, scope;
 
         switch (script.scriptType) {
-          case "js": freakHTML = freakHTML.replace("{highlight}", "javascript"); break;
-          case "css": freakHTML = freakHTML.replace("{highlight}", "css"); break;
-          case "libs": freakHTML = freakHTML.replace("{highlight}", "json"); break;
+          case "js": highlight = "javascript"; break;
+          case "css": highlight = "css"; break;
+          case "libs": highlight = "json"; break;
         }
 
         if (script.scope === "*")
-          freakHTML = freakHTML.replace("{scope}", chrome.i18n.getMessage("listScopeAll"));
+          scope = chrome.i18n.getMessage("listScopeAll");
         else
-          freakHTML = freakHTML.replace("{scope}", $("<a/>").attr({href: script.scope, target: "_blank", title: chrome.i18n.getMessage("listOpenNewTab")}).html(script.scope).outerHTML);
+          scope = $("<a/>").attr({href: script.scope, target: "_blank", title: chrome.i18n.getMessage("listOpenNewTab")}).html(script.scope).outerHTML;
 
-        var list_item = $("<li/>").html(freakHTML).data("key", script.scriptType + "-" + script.scope);
-        script_ul.append(list_item);
+        tplData.push({
+          type: script.scriptType.toUpperCase(),
+          scope: scope,
+          listDelete: chrome.i18n.getMessage("listDelete"),
+          highlight: highlight,
+          text: (typeof script.text === "string") ? script.text : JSON.stringify(script.text, null, "  "),
+          key: script.scriptType + "-" + script.scope
+        });
       });
+
+      script_ul.html(Templates.render("list", {tweaks: tplData}));
 
       $$(script_ul, "a.delete").bind("click", function (evt) {
         if (confirm(chrome.i18n.getMessage("listRemoveWarning"))) {

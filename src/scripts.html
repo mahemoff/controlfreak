@@ -5,6 +5,10 @@
 
   <script src="js/config.js"></script>
   <script src="js/dom.js"></script>
+
+  <script src="js/hogan.js"></script>
+  <script src="js/templates.js"></script>
+
   <script src="js/scripts.js"></script>
   <script src="https://yandex.st/highlightjs/7.3/highlight.min.js"></script>
 
@@ -12,32 +16,9 @@
   <link rel="stylesheet" href="css/scripts.css">
   <link rel="stylesheet" href="https://yandex.st/highlightjs/7.3/styles/default.min.css">
 </head>
-<body class="hidden">
+<body>
 
-<h1>{i18n.listWindowTitle}</h1>
 
-<div id="controls">
-  <label>
-    <button id="clear">{i18n.listClearTweaks}</button>
-  </label>
-  <label id="sync-option">
-    <input type="checkbox" id="sync"> {i18n.listSyncTweaks}
-  </label>
-</div>
-
-<ul id="scripts"></ul>
-
-<div class="template">
-    <h3>
-      <span class="scriptType">{type}</span>
-      {scope}
-    </h3>
-    <div class="manage-links">
-      <a class="delete" href="">{i18n.listDelete}</a>
-    </div>
-
-    <pre><code class="{highlight}">{text}</code></pre>
-</div>
 
 </body>
 </html>

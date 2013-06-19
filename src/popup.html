@@ -5,9 +5,13 @@
 
   <script src="js/config.js"></script>
   <script src="js/dom.js"></script>
-  <script src="js/codemirror.min.js"></script>
-  <script src="js/codemirror.css.min.js"></script>
-  <script src="js/codemirror.javascript.min.js"></script>
+
+  <script src="js/hogan.js"></script>
+  <script src="js/templates.js"></script>
+
+  <script src="js/codemirror/codemirror.min.js"></script>
+  <script src="js/codemirror/css.min.js"></script>
+  <script src="js/codemirror/javascript.min.js"></script>
   <script src="js/popup.js"></script>
 
   <link rel="stylesheet" href="css/reset.css">
@@ -16,36 +20,7 @@
 </head>
 <body>
 
-<div id="wrapper" class="hidden">
-  <div class="scope-zone">
-    <ul class="scopeLevels">
-      <li data-id="all" class="scopeLevel" data-title="{i18n.popupScopeDisplayAll}">{i18n.popupScopeAll}</li>
-      <li data-id="origin" class="scopeLevel">{i18n.popupScopeOrigin}</li>
-      <li data-id="page" class="scopeLevel">{i18n.popupScopePage}</li>
-    </ul>
-    <div id="scopeDisplay"></div>
-  </div>
 
-  <div class="tabs-zone">
-    <ul>
-      <li data-id="js">Javascript</li>
-      <li data-id="css">CSS</li>
-      <li data-id="libs">{i18n.popupTabsLibs}</li>
-    </ul>
 
-    <div class="manage-links">
-      <a target="_blank" class="hidden" href="popup.html">debug</a>
-      <a target="_blank" href="scripts.html">{i18n.popupManageAll}</a>
-    </div>
-  </div>
-
-  <div class="arena-zone">
-    <select multiple id="lib-select" class="hidden"></select>
-    <textarea id="code" class="hidden"></textarea>
-  </div>
-
-  <button id="save" type="button">{i18n.popupSaveButtonTitle}</button>
-  <button id="reset" type="button">{i18n.popupResetButtonTitle}</button>
-</div>
 </body>
 </html>

@@ -1,0 +1,31 @@
+<div id="wrapper">
+  <div class="scope-zone">
+    <ul class="scopeLevels">
+      <li data-id="all" class="scopeLevel" data-title="{{popupScopeDisplayAll}}">{{popupScopeAll}}</li>
+      <li data-id="origin" class="scopeLevel">{{popupScopeOrigin}}</li>
+      <li data-id="page" class="scopeLevel">{{popupScopePage}}</li>
+    </ul>
+    <div id="scopeDisplay"></div>
+  </div>
+
+  <div class="tabs-zone">
+    <ul>
+      <li data-id="js">Javascript</li>
+      <li data-id="css">CSS</li>
+      <li data-id="libs">{{popupTabsLibs}}</li>
+    </ul>
+
+    <div class="manage-links">
+      <a target="_blank" class="hidden" href="popup.html">debug</a>
+      <a target="_blank" href="scripts.html">{{popupManageAll}}</a>
+    </div>
+  </div>
+
+  <div class="arena-zone">
+    <select multiple id="lib-select" class="hidden"></select>
+    <textarea id="code" class="hidden"></textarea>
+  </div>
+
+  <button id="save" type="button">{{popupSaveButtonTitle}}</button>
+  <button id="reset" type="button">{{popupResetButtonTitle}}</button>
+</div>
