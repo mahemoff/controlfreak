@@ -9,6 +9,7 @@
   "icons": {
     "16":  "images/system16.png",
     "32":  "images/system32.png",
+    "48":  "images/system48.png",
     "128": "images/system128.png"
   },
 
@@ -18,8 +19,10 @@
     "default_popup": "popup.html"
   },
 
+  "web_accessible_resources": ["images/system48.png"],
+
   "background": {
-    "scripts": ["js/events.js"],
+    "scripts": ["js/config.js", "js/events.js", "js/counter.js"],
     "persistent": false
   },
   "options_page": "scripts.html",
@@ -31,5 +34,5 @@
     "js": ["js/dom.js", "js/content.js"]
   }],
 
-  "permissions": ["tabs", "storage", "*://*/*", "unlimitedStorage"]
+  "permissions": ["tabs", "storage", "*://*/*", "unlimitedStorage", "notifications"]
 }

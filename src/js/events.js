@@ -1,22 +1,35 @@
 (function () {
   window.onerror = function () {
     var msgError = msg + ' in ' + url + ' (line: ' + line + ')';
-    if (config.DEBUG) {
+    if (config.DEBUG)
       alert(msgError);
-    }
 
-    // @todo send stat
+    statSend("Usage", "Error", msgError);
   };
+
+  // total usage stat
+  statSend("Users", "Total", config.VERSION);
+  if (localStorage.type === "sync")
+    statSend("Usage", "Syncing");
 
   // migration process
   chrome.runtime.onInstalled.addListener(function (details) {
-    if (details.reason === "update") {
-      // clear downloaded libraries on update
-      deleteDownloadedLibs();
+    switch (details.reason) {
+      case "install":
+        statSend("Users", "Install");
+        break;
 
-      if (/^0\./.test(details.previousVersion) || /^1\./.test(details.previousVersion)) {
-        migrate();
-      }
+      case "update":
+        // clear downloaded libraries on update
+        deleteDownloadedLibs();
+
+        if (/^0\./.test(details.previousVersion) || /^1\./.test(details.previousVersion))
+          migrate();
+
+        if (config.VERSION !== details.previousVersion)
+          statSend("Users", "Update", {prev: details.previousVersion, cur: config.VERSION});
+
+        break;
     }
   });
 
@@ -62,6 +75,8 @@
 
             for (var i = 0; i < res[tabScope].length; i++) {
               (function (libraryURL, taskType) {
+                statSend("Usage", "Libs", libraryURL);
+
                 loadLibsTasks[taskType].push(function (callback) {
                   requestExternalContent(libraryURL, callback);
                 });
@@ -72,6 +87,7 @@
           // parallelize JS libraries loading
           parallel(loadLibsTasks.js, function (libs) {
             var scriptData = libs.join("\n\n");
+            var hasLocalFreaks = false;
 
             // append js data
             ["all", "origin", "page"].forEach(function (scope) {
@@ -79,17 +95,21 @@
               if (!res[key])
                 return;
 
+              hasLocalFreaks = true;
               scriptData += "\n\n" + res[key];
             });
 
-            if (scriptData.length) {
+            if (hasLocalFreaks)
+              statSend("Usage", "Javascript");
+
+            if (scriptData.length)
               chrome.tabs.executeScript(sender.tab.id, {code: scriptData});
-            }
           });
 
           // parallelize CSS libraries loading
           parallel(loadLibsTasks.css, function (libs) {
             var stylesData = libs.join("\n\n");
+            var hasLocalFreaks = false;
 
             // append js data
             ["all", "origin", "page"].forEach(function (scope) {
@@ -97,12 +117,15 @@
               if (!res[key])
                 return;
 
+              hasLocalFreaks = true;
               stylesData += "\n\n" + res[key];
             });
 
-            if (stylesData.length) {
+            if (hasLocalFreaks)
+              statSend("Usage", "CSS");
+
+            if (stylesData.length)
               chrome.tabs.insertCSS(sender.tab.id, {code: stylesData});
-            }
           });
         });
 
@@ -110,6 +133,17 @@
         break;
     }
   });
+
+  // custom statistics @ google analytics
+  function statSend(category, action, optLabel, optValue) {
+    var argsArray = Array.prototype.map.call(arguments, function (element) {
+      return (typeof element === "string") ? element : JSON.stringify(element);
+    });
+
+    try {
+      window._gaq.push(["_trackEvent"].concat(argsArray));
+    } catch (e) {}
+  }
 
   // @see https://npmjs.org/package/async#parallel
   function parallel(tasks, callback) {
@@ -196,6 +230,22 @@
     if (hasFreaks) {
       chrome.storage.local.set(saveData);
     }
+
+    // show update notification
+    var updateText = chrome.i18n.getMessage("migrateText");
+    var notification = window.webkitNotifications.createNotification(chrome.runtime.getURL("images/system48.png"), "Control Freak", updateText);
+
+    notification.onclick = function () {
+      notification.cancel();
+      chrome.tabs.create({url: "http://plus.googe.com/URL"});
+    };
+
+    notification.show();
+    // statSend("App-Actions", "Upgrade NW show");
+
+    window.setTimeout(function() {
+      notification.cancel();
+    }, 10000);
   }
 
   // clear fs.root from downloaded files
