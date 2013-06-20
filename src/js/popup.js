@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function buildDOM() {
   document.title = chrome.i18n.getMessage("popupWindowTitle");
 
   var placeholders = ["popupScopeDisplayAll", "popupScopeAll", "popupScopeOrigin", "popupScopePage", "popupTabsLibs", "popupManageAll", "popupSaveButtonTitle", "popupResetButtonTitle"];
@@ -178,7 +178,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // bind keypress handler on textarea keypress
   $(".arena-zone textarea").bind("keypress", function () {
-    this.data("state", "changed")
+    this.data("state", "changed");
   });
 
   // bind save action handler
@@ -216,9 +216,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // @todo
-  $("#reset").bind("click", function () {
-    location.reload();
-  });
+  $("#reset").bind("click", buildDOM);
 
   // update page properties
   chrome.tabs.getSelected(null, function (tab) {
@@ -234,7 +232,6 @@ document.addEventListener("DOMContentLoaded", function () {
       var freaksFound = false;
       var key;
 
-      // @todo what if the tweak was made for index page?
       for (var i = 0; i < priority.length; i++) {
         for (var j = 0; j < scopes.length; j++) {
           key = scopes[j] + "_" + priority[i];
@@ -279,8 +276,12 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // bind textarea value update on codemirror value change
-  myCodeMirror.on("change", function (obj) {
-    textarea.val(obj.doc.getValue()).data("state", "changed");
+  myCodeMirror.on("change", function (obj, changeInfo) {
+    textarea.val(obj.doc.getValue());
+
+    if (changeInfo && changeInfo.origin !== "setValue") {
+      textarea.data("state", "changed");
+    }
   });
 
   function updateEditor() {

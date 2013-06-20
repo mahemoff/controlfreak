@@ -66,7 +66,6 @@ document.addEventListener("DOMContentLoaded", function () {
       scripts.sort(function (scriptA, scriptB) {
         if (scriptA.scope=="*" && scriptB.scope!="*") return -1;
         if (scriptB.scope=="*" && scriptA.scope!="*") return 1;
-        // @todo sort with pathname & origin?
         if (scriptA.scope<scriptB.scope) return -1;
         if (scriptB.scope<scriptA.scope) return 1;
         return scriptA.scriptType < scriptB.scriptType;
