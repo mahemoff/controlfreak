@@ -236,12 +236,14 @@
     var notification = window.webkitNotifications.createNotification(chrome.runtime.getURL("images/system48.png"), "Control Freak", updateText);
 
     notification.onclick = function () {
+      statSend("Usage", "Click 2.x notification");
+
       notification.cancel();
       chrome.tabs.create({url: "http://plus.googe.com/URL"});
     };
 
     notification.show();
-    // statSend("App-Actions", "Upgrade NW show");
+    statSend("Usage", "Show 2.x notification");
 
     window.setTimeout(function() {
       notification.cancel();
