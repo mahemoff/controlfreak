@@ -244,7 +244,7 @@
       statSend("Usage", "Click 2.x notification");
 
       notification.cancel();
-      chrome.tabs.create({url: "http://plus.googe.com/URL"});
+      chrome.tabs.create({url: "https://plus.google.com/111376663194937437149/posts/WaQwVYq1EAT"});
     };
 
     notification.show();
