@@ -217,19 +217,24 @@
   function migrate() {
     var saveData = {};
     var hasFreaks = false;
+    var matches;
 
     for (var key in localStorage) {
-      if (/^js\-/.test(key) || /^css\-/.test(key) || /^libs\-/.test(key)) {
-        try {
-          saveData[key] = JSON.parse(localStorage[key]);
-          hasFreaks = true;
-        } catch (ex) {}
-      }
+      matches = key.match(/^(js|css|libs)-(.+)/);
+      if (!matches)
+        continue;
+
+      if (!/^(https?|ftps?|chrome\-extension|chrome):\/\//.test(matches[2]) && matches[2] !== "*")
+        matches[2] = "http://" + matches[2];
+
+      try {
+        saveData[matches[1] + "-" + matches[2]] = JSON.parse(localStorage[key]);
+        hasFreaks = true;
+      } catch (ex) {}
     }
 
-    if (hasFreaks) {
+    if (hasFreaks)
       chrome.storage.local.set(saveData);
-    }
 
     // show update notification
     var updateText = chrome.i18n.getMessage("migrateText");
