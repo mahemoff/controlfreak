@@ -281,14 +281,14 @@
     localStorage.inject = "dom";
 
     // show update notification
-    var updateText = chrome.i18n.getMessage("migrateText21t");
+    var updateText = chrome.i18n.getMessage("migrateText21");
     var notification = window.webkitNotifications.createNotification(chrome.runtime.getURL("images/system48.png"), "Control Freak", updateText);
 
     notification.onclick = function () {
       statSend("Usage", "Click 2.1 notification");
 
       notification.cancel();
-      chrome.tabs.create({url: "http://TODO"});
+      chrome.tabs.create({url: "https://plus.google.com/111376663194937437149/posts/Bn4hn8T3op7"});
     };
 
     notification.show();
