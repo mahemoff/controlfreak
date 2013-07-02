@@ -1,6 +1,6 @@
 /* ==========================================================
- * DOM sugar (VK Offline Chrome app)
- * https://github.com/1999/vkoffline
+ * DOM sugar for new browsers
+ * https://github.com/1999/dom
  * ==========================================================
  * Copyright 2013 Dmitry Sorin <info@staypositive.ru>
  *
@@ -17,473 +17,517 @@
  * limitations under the License.
  * ========================================================== */
 
-(function (w) {
-	window.$ = function () {
-		switch (arguments.length) {
-			case 1:
-				if (arguments[0] instanceof HTMLElement)
-					return arguments[0];
+(function () {
+    // shim for browsers with missing support for insertAdjacentElement
+    if (!HTMLElement.prototype.insertAdjacentElement) {
+        var adjacentElementDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "insertAdjacentHTML");
+        adjacentElementDescriptor.value = function (where, parsedNode) {
+            switch (where) {
+                case "beforeBegin":
+                    this.parentNode.insertBefore(parsedNode, this);
+                    break;
 
-				if (typeof arguments[0] === "string") {
-					if (!/^<(.|[\r\n\t])+>$/.test(arguments[0]))
-						return document.querySelector(arguments[0]);
+                case "afterBegin":
+                    this.insertBefore(parsedNode, this.firstChild);
+                    break;
 
-					// $("<div>text</div>")
-					var tmpElem = document.createElement("div");
-					tmpElem.innerHTML = arguments[0];
+                case "beforeEnd":
+                    this.appendChild(parsedNode);
+                    break;
 
-					return (tmpElem.childNodes.length > 1) ? tmpElem.childNodes : tmpElem.firstChild;
-				}
+                case "afterEnd":
+                    if (this.nextSibling)
+                        this.parentNode.insertBefore(parsedNode, this.nextSibling);
+                    else
+                        this.parentNode.appendChild(parsedNode);
 
-				break;
+                    break;
+            }
+        }
 
-			case 2:
-				if (arguments[0] instanceof HTMLElement && typeof arguments[1] === "string")
-					return arguments[0].querySelector(arguments[1]);
+        Object.defineProperty(HTMLElement.prototype, "insertAdjacentElement", adjacentElementDescriptor);
+    }
 
-				break;
-		}
+    var HTMLExtendedElement = {
+        /**
+         * Find closest ancestor node
+         * @param {String} selector
+         * @return {HTMLElement|Null}
+         */
+        closestParent: function (selector) {
+            var matchesSelectorFn = (Element.prototype.matchesSelector || Element.prototype.webkitMatchesSelector || Element.prototype.mozMatchesSelector);
+            var elem = this;
 
-		throw new Error("Can't use these arguments");
-	};
+            while (elem.parentNode) {
+                if (matchesSelectorFn.call(elem, selector))
+                    return elem;
 
-	window.$$ = function () {
-		switch (arguments.length) {
-			case 1:
-				if (typeof arguments[0] === "string")
-					return document.querySelectorAll(arguments[0]);
+                elem = elem.parentNode;
+            }
 
-				break;
+            return null;
+        },
+        /**
+         * Bind event listener to node
+         * @param {String} evtType
+         * @param {Function} callback
+         * @param {Boolean} singleton
+         * @return {HTMLElement} refers to this
+         */
+        bind: function (evtType, callback, singleton) {
+            if (singleton) {
+                this["on" + evtType] = callback;
+            } else {
+                this.addEventListener(evtType, callback, false);
+            }
 
-			case 2:
-				if (arguments[0] instanceof HTMLElement && typeof arguments[1] === "string")
-					return arguments[0].querySelectorAll(arguments[1]);
+            return this;
+        },
+        /**
+         * Remove node
+         * @return {HTMLElement} refers to this
+         */
+        remove: function () {
+            return this.parentNode.removeChild(this);
+        },
+        /**
+         * Get innerHTML property of a node or set it
+         * @param {String|Undefined} newHTML
+         * @return {HTMLElement|String} innerHTML or node which refers to this
+         */
+        html: function (newHTML) {
+            if (newHTML !== undefined) {
+                this.innerHTML = newHTML;
+                return this;
+            }
 
-				break;
-		}
+            return this.innerHTML;
+        },
+        /**
+         * Get textContent property of a node or set it
+         * @param {String|Undefined} newContent
+         * @return {HTMLElement|String} textContent or node which refers to this
+         */
+        text: function (newContent) {
+            if (newContent !== undefined) {
+                this.textContent = newContent;
+                return this;
+            }
 
-		throw new Error("Can't use these arguments");
-	};
+            return this.textContent;
+        },
+        /**
+         * Empty innerHTML of a node
+         * @type {HTMLElement} refers to this
+         */
+        empty: function () {
+            return this.html("");
+        },
+        /**
+         * Append HTML code, HTMLElement or NodeList to a node
+         * @param {String|HTMLElement|NodeList} contents
+         * @return {HTMLElement} refers to this
+         */
+        append: function (contents) {
+            if (typeof contents === "string") {
+                this.insertAdjacentHTML("beforeEnd", contents);
+            } else if (contents instanceof HTMLElement) {
+                this.insertAdjacentElement("beforeEnd", contents);
+            } else if (contents instanceof NodeList) {
+                for (var i = 0; i < contents.length; i++) {
+                    this.insertAdjacentElement("beforeEnd", contents[i]);
+                }
+            }
 
-	HTMLElement.prototype.__proto__ = Object.create(Object.getPrototypeOf(HTMLElement.prototype), {
-		closestParent: {
-			writable: false,
-			configurable: false,
-			enumerable: false,
-			value: function (selector) {
-				var matchesSelectorFn = (Element.prototype.webkitMatchesSelector || Element.prototype.matchesSelector);
-				var elem = this;
+            return this;
+        },
+        /**
+         * Insert HTML code, HTMLElement or NodeList to the beginning of a node contents
+         * @param {String|HTMLElement|NodeList} contents
+         * @return {HTMLElement} refers to this
+         */
+        prepend: function (contents) {
+            if (typeof contents === "string") {
+                this.insertAdjacentHTML("afterBegin", contents);
+            } else if (contents instanceof HTMLElement) {
+                this.insertAdjacentElement("afterBegin", contents);
+            } else if (contents instanceof NodeList) {
+                for (var i = 0; i < contents.length; i++) {
+                    this.insertAdjacentElement("afterBegin", contents[i]);
+                }
+            }
 
-				while (elem.parentNode) {
-					if (matchesSelectorFn.call(elem, selector))
-						return elem;
+            return this;
+        },
+        /**
+         * Insert HTML code, HTMLElement or NodeList before a node
+         * @param {String|HTMLElement|NodeList} contents
+         * @return {HTMLElement} refers to this
+         */
+        before: function (contents) {
+            if (typeof contents === "string") {
+                this.insertAdjacentHTML("beforeBegin", contents);
+            } else if (contents instanceof HTMLElement) {
+                this.insertAdjacentElement("beforeBegin", contents);
+            } else if (contents instanceof NodeList) {
+                for (var i = 0; i < contents.length; i++) {
+                    this.insertAdjacentElement("beforeBegin", contents[i]);
+                }
+            }
 
-					elem = elem.parentNode;
-				}
+            return this;
+        },
+        /**
+         * Insert HTML code, HTMLElement or NodeList after a node
+         * @param {String|HTMLElement|NodeList} contents
+         * @return {HTMLElement} refers to this
+         */
+        after: function (contents) {
+            if (typeof contents === "string") {
+                this.insertAdjacentHTML("afterEnd", contents);
+            } else if (contents instanceof HTMLElement) {
+                this.insertAdjacentElement("afterEnd", contents);
+            } else if (contents instanceof NodeList) {
+                for (var i = 0; i < contents.length; i++) {
+                    this.insertAdjacentElement("afterEnd", contents[i]);
+                }
+            }
 
-				return null;
-			}
-		},
-		bind: {
-			writable: false,
-			configurable: false,
-			enumerable: false,
-			value: function (evtType, callback, singleton) {
-				if (singleton) {
-					this["on" + evtType] = callback;
-				} else {
-					this.addEventListener(evtType, callback, false);
-				}
+            return this;
+        },
+        /**
+         * Get value of a node or set it
+         * @param {Mixed|Undefined} newValue
+         * @return {HTMLElement|Mixed} node value or node which refers to this
+         */
+        val: function (newValue) {
+            if (newValue === undefined)
+                return this.value;
 
-				return this;
-			}
-		},
-		remove: {
-			writable: false,
-			configurable: false,
-			enumerable: false,
-			value: function () {
-				return this.parentNode.removeChild(this);
-			}
-		},
-		html: {
-			writable: false,
-			configurable: false,
-			enumerable: false,
-			value: function (newHTML) {
-				if (newHTML !== undefined) {
-					this.innerHTML = newHTML;
-					return this;
-				}
+            this.value = newValue;
+            return this;
+        },
+        /**
+         * Add one or mutiple classes to a node classList
+         * @param [arguments] classNames
+         * @return {HTMLElement} refers to this
+         */
+        addClass: function () {
+            var classNames = Array.prototype.slice.call(arguments, 0);
+            for (var i = 0; i < classNames.length; i++)
+                this.classList.add(classNames[i]);
 
-				return this.innerHTML;
-			}
-		},
-		text: {
-			writable: false,
-			configurable: false,
-			enumerable: false,
-			value: function (newContent) {
-				if (newContent !== undefined) {
-					this.textContent = newContent;
-					return this;
-				}
+            return this;
+        },
+        /**
+         * Remove one or mutiple classes from a node classList. If arguments count is 0, than classList is cleared
+         * @param [arguments] classNames
+         * @return {HTMLElement} refers to this
+         */
+        removeClass: function () {
+            var classNames = Array.prototype.slice.call(arguments, 0);
+            if (classNames.length) {
+                for (var i = 0; i < classNames.length; i++) {
+                    this.classList.remove(classNames[i]);
+                }
+            } else {
+                this.className = "";
+            }
 
-				return this.textContent;
-			}
-		},
-		empty: {
-			writable: false,
-			configurable: false,
-			enumerable: false,
-			value: function () {
-				return this.html("");
-			}
-		},
+            return this;
+        },
+        /**
+         * Check whether one or all of the classes are in the classList property of a node
+         * @param [arguments] classNames
+         * @return {Boolean}
+         */
+        hasClass: function () {
+            var classNames = Array.prototype.slice.call(arguments, 0);
+            var contains = true;
 
-		/**
-		 * @param {String|Array|HTMLElement} contents
-		 */
-		append: {
-			writable: false,
-			configurable: false,
-			enumerable: false,
-			value: function (contents) {
-				if (typeof contents === "string") {
-					this.insertAdjacentHTML("beforeEnd", contents);
-				} else {
-					if (contents instanceof HTMLElement)
-						contents = [contents];
+            for (var i = 0; i < classNames.length; i++) {
+                if (!this.classList.contains(classNames[i])) {
+                    contains = false;
+                    break;
+                }
+            }
 
-					for (var i = 0; i < contents.length; i++) {
-						this.insertAdjacentElement("beforeEnd", contents[i]);
-					}
-				}
+            return contains;
+        },
+        /**
+         * Toggle the existence of a class in an element's list of classes
+         * @type {Boolean}
+         */
+        toggleClass: function (className, force) {
+            return this.classList.toggle(className, force);
+        },
+        /**
+         * Get attribute(s) of a node or set it
+         * @param {String} key
+         * @param {Mixed} value
+         * @return {HTMLElement} refers to this
+         *
+         * or
+         * @param {Object} key-value map of the attributes
+         * @return {HTMLElement} refers to this
+         *
+         * or
+         * @param {String} key
+         * @return {Mixed} attribute's value
+         */
+        attr: function (key, value) {
+            if (value === undefined && typeof key === "string")
+                return this.getAttribute(key);
 
-				return this;
-			}
-		},
+            var attributes = {};
+            if (arguments.length === 1) {
+                attributes = key;
+            } else {
+                attributes[key] = value;
+            }
 
-		/**
-		 * @param {String|Array|HTMLElement} contents
-		 */
-		prepend: {
-			writable: false,
-			configurable: false,
-			enumerable: false,
-			value: function (contents) {
-				if (typeof contents === "string") {
-					this.insertAdjacentHTML("afterBegin", contents);
-				} else {
-					if (contents instanceof HTMLElement)
-						contents = [contents];
+            for (var attrKey in attributes)
+                this.setAttribute(attrKey, attributes[key]);
 
-					for (var i = contents.length - 1; i >= 0; i--) {
-						this.insertAdjacentElement("afterBegin", contents[i]);
-					}
-				}
+            return this;
+        },
+        /**
+         * Remove node's attribute
+         * @return {HTMLElement} refers to this
+         */
+        removeAttr: function (key) {
+            this.removeAttribute(key);
+            return this;
+        },
+        /**
+         * Get dataset value(s) or set it
+         * @param {String} key
+         * @param {Mixed} value
+         * @return {HTMLElement} refers to this
+         *
+         * or
+         * @param {Object} key-value map of the dataset
+         * @return {HTMLElement} refers to this
+         *
+         * or
+         * @param {String} key
+         * @return {Mixed} attribute's value
+         */
+        data: function (key, value) {
+            if (value === undefined && typeof key === "string")
+                return (this.dataset[key] || "");
 
-				return this;
-			}
-		},
+            var data = {};
+            if (arguments.length === 1) {
+                data = key;
+            } else {
+                data[key] = value;
+            }
 
-		/**
-		 * @param {String|Array|HTMLElement} contents
-		 */
-		before: {
-			writable: false,
-			configurable: false,
-			enumerable: false,
-			value: function (contents) {
-				if (typeof contents === "string") {
-					this.insertAdjacentHTML("beforeBegin", contents);
-				} else {
-					if (contents instanceof HTMLElement)
-						contents = [contents];
+            for (var dataKey in data)
+                this.dataset[dataKey] = data[key];
 
-					for (var i = 0; i < contents.length; i++) {
-						this.insertAdjacentElement("beforeBegin", contents[i]);
-					}
-				}
+            return this;
+        },
+        /**
+         * Delete dataset properties from a node. If arguments count is 0, than dataset of a node will be cleared
+         * @param [arguments] dataset keys
+         * @return {HTMLElement} refers to this
+         */
+        removeData: function () {
+            var datasetKeys = Array.prototype.slice.call(arguments, 0);
 
-				return this;
-			}
-		},
+            for (var key in this.dataset) {
+                if (!datasetKeys.length || datasetKeys.indexOf(key) !== -1) {
+                    delete this.dataset[key];
+                }
+            }
 
-		/**
-		 * @param {String|Array|HTMLElement} contents
-		 */
-		after: {
-			writable: false,
-			configurable: false,
-			enumerable: false,
-			value: function (contents) {
-				if (typeof contents === "string") {
-					this.insertAdjacentHTML("afterEnd", contents);
-				} else {
-					if (contents instanceof HTMLElement)
-						contents = [contents];
+            return this;
+        },
+        /**
+         * Get style property value(s) of a node or set it
+         * @param {String} key
+         * @param {Mixed} value
+         * @return {HTMLElement} refers to this
+         *
+         * or
+         * @param {Object} key-value map of the dataset
+         * @return {HTMLElement} refers to this
+         *
+         * or
+         * @param {String} key
+         * @return {Mixed} attribute's value
+         */
+        css: function (key, value) {
+            if (value === undefined && typeof key === "string")
+                return this.style[key];
 
-					for (var i = 0; i < contents.length; i++) {
-						this.insertAdjacentElement("afterEnd", contents[i]);
-					}
-				}
+            var styles = {};
+            if (arguments.length === 1) {
+                styles = key;
+            } else {
+                styles[key] = value;
+            }
 
-				return this;
-			}
-		},
-		val: {
-			writable: false,
-			configurable: false,
-			enumerable: false,
-			value: function (newValue) {
-				if (newValue === undefined)
-					return this.value;
+            for (var cssKey in styles)
+                this.style[cssKey] = styles[key];
 
-				this.value = newValue;
-				return this;
-			}
-		},
-		addClass: {
-			writable: false,
-			configurable: false,
-			enumerable: false,
-			value: function () {
-				var classNames = Array.prototype.slice.call(arguments, 0);
-				for (var i = 0; i < classNames.length; i++)
-					this.classList.add(classNames[i]);
+            return this;
+        }
+    };
 
-				return this;
-			}
-		},
+    var NodeExtendedList = {
+        /**
+         * Apply callback to each element of the list
+         * @param {Function} callback where this refers to parsed element of the list
+         * @return {NodeList} refers to this
+         */
+        each: function (callback) {
+            for (var i = 0; i < this.length; i++)
+                callback.call(this[i], i);
 
-		/**
-		 * if multiple aguments are supplied, checks whether all of them are in the classList
-		 */
-		hasClass: {
-			writable: false,
-			configurable: false,
-			enumerable: false,
-			value: function () {
-				var classNames = Array.prototype.slice.call(arguments, 0);
-				var contains = true;
+            return this;
+        },
+        /**
+         * Bind event listener to every element of the list
+         * @param {String} evtType
+         * @param {Function} callback
+         * @param {Boolean} singleton
+         * @return {NodeList} refers to this
+         */
+        bind: function (evtType, callback, singleton) {
+            for (var i = 0; i < this.length; i++)
+                this[i].bind(evtType, callback, singleton);
 
-				for (var i = 0; i < classNames.length; i++) {
-					if (!this.classList.contains(classNames[i])) {
-						contains = false;
-						break;
-					}
-				}
+            return this;
+        },
+        /**
+         * Empty innerHTML properties of every element in the list
+         * @return {NodeList} refers to this
+         */
+        empty: function () {
+            for (var i = 0; i < this.length; i++)
+                this[i].empty();
 
-				return contains;
-			}
-		},
-		toggleClass: {
-			writable: false,
-			configurable: false,
-			enumerable: false,
-			value: function (className, force) {
-				return this.classList.toggle(className, force);
-			}
-		},
+            return this;
+        },
+        /**
+         * Remove every element of the list from their parents
+         * @return {NodeList} refers to this
+         */
+        remove: function () {
+            for (var i = 0; i < this.length; i++)
+                this[i].remove();
 
-		/**
-		 * if no aguments are supplied, clears all classes from the DOM element(s)
-		 */
-		removeClass: {
-			writable: false,
-			configurable: false,
-			enumerable: false,
-			value: function () {
-				var classNames = Array.prototype.slice.call(arguments, 0);
-				if (classNames.length) {
-					for (var i = 0; i < classNames.length; i++) {
-						this.classList.remove(classNames[i]);
-					}
-				} else {
-					this.className = "";
-				}
+            return this;
+        },
+        /**
+         * Add one or mutiple classes to every element's classList
+         * @param [arguments] classNames
+         * @return {NodeList} refers to this
+         */
+        addClass: function () {
+            for (var i = 0; i < this.length; i++)
+                this[i].addClass.apply(this[i], Array.prototype.slice.call(arguments, 0));
 
-				return this;
-			}
-		},
-		attr: {
-			writable: false,
-			configurable: false,
-			enumerable: false,
-			value: function (key, value) {
-				if (value === undefined && typeof key === "string")
-					return this.getAttribute(key);
+            return this;
+        },
+        /**
+         * Remove one or mutiple classes from every element's classList. If arguments count is 0, than classList is cleared
+         * @return {NodeList} refers to this
+         */
+        removeClass: function () {
+            for (var i = 0; i < this.length; i++)
+                this[i].removeClass.apply(this[i], Array.prototype.slice.call(arguments, 0));
 
-				var attributes = {};
-				if (arguments.length === 1) {
-					attributes = key;
-				} else {
-					attributes[key] = value;
-				}
+            return this;
+        }
+    };
 
-				for (var key in attributes)
-					this.setAttribute(key, attributes[key]);
+    var elementPropertiesObject = {};
+    for (var methodName in HTMLExtendedElement) {
+        elementPropertiesObject[methodName] = {
+            value: HTMLExtendedElement[methodName]
+        };
+    }
 
-				return this;
-			}
-		},
-		removeAttr: {
-			writable: false,
-			configurable: false,
-			enumerable: false,
-			value: function (key) {
-				this.removeAttribute(key);
-				return this;
-			}
-		},
-		data: {
-			writable: false,
-			configurable: false,
-			enumerable: false,
-			value: function (key, value) {
-				if (value === undefined && typeof key === "string")
-					return (this.dataset[key] || "");
+    var listPropertiesObject = {};
+    for (var methodName in NodeExtendedList) {
+        listPropertiesObject[methodName] = {
+            value: NodeExtendedList[methodName]
+        };
+    }
 
-				var data = {};
-				if (arguments.length === 1) {
-					data = key;
-				} else {
-					data[key] = value;
-				}
+    /**
+     * Shortened and more convenient "querySelector"
+     * @return {HTMLElement|Null}
+     * @throws {TypeError} if arguments are invalid
+     *
+     * @example
+     * $(document.body) returns a document body itself
+     * $("<div>smth</div>") returns a new div element with innerHTML property set to "smth"
+     * $("div.wrapper p") returns the same as document.querySelector("div.wrapper p")
+     * $(parentNode, "p") returns the same as parentNode.querySelector("p")
+     */
+    window.$ = function () {
+        switch (arguments.length) {
+            case 1:
+                if (arguments[0] instanceof HTMLElement)
+                    return arguments[0];
 
-				for (var key in data)
-					this.dataset[key] = data[key];
+                if (typeof arguments[0] === "string") {
+                    if (!/^<(.|[\r\n\t])+>$/.test(arguments[0]))
+                        return document.querySelector(arguments[0]);
 
-				return this;
-			}
-		},
+                    var tmpElem = document.createElement("div");
+                    tmpElem.innerHTML = arguments[0];
+                    return tmpElem.firstChild;
+                }
 
-		/**
-		 * if no aguments are supplied, clears all dataset from the DOM element(s)
-		 */
-		removeData: {
-			writable: false,
-			configurable: false,
-			enumerable: false,
-			value: function () {
-				var datasetKeys = Array.prototype.slice.call(arguments, 0);
+                break;
 
-				for (var key in this.dataset) {
-					if (!datasetKeys.length || datasetKeys.indexOf(key) !== -1) {
-						delete this.dataset[key];
-					}
-				}
+            case 2:
+                if (arguments[0] instanceof HTMLElement && typeof arguments[1] === "string")
+                    return arguments[0].querySelector(arguments[1]);
 
-				return this;
-			}
-		},
-		css: {
-			writable: false,
-			configurable: false,
-			enumerable: false,
-			value: function (key, value) {
-				if (value === undefined && typeof key === "string")
-					return this.style[key];
+                break;
+        }
 
-				var styles = {};
-				if (arguments.length === 1) {
-					styles = key;
-				} else {
-					styles[key] = value;
-				}
+        throw new TypeError("Can't use these arguments");
+    };
 
-				for (var key in styles)
-					this.style[key] = styles[key];
+    /**
+     * Shortened and more convenient "querySelectorAll"
+     * @return {NodeList}
+     * @throws {TypeError} if arguments are invalid
+     *
+     * @example
+     * $$(nodeList) returns a nodeList itself
+     * $$("div.wrapper p") returns the same as document.querySelectorAll("div.wrapper p")
+     * $$(parentNode, "p") returns the same as parentNode.querySelectorAll("p")
+     */
+    window.$$ = function () {
+        switch (arguments.length) {
+            case 1:
+                if (arguments[0] instanceof NodeList)
+                    return arguments[0];
 
-				return this;
-			}
-		}
-	});
+                if (typeof arguments[0] === "string")
+                    return document.querySelectorAll(arguments[0]);
 
-	NodeList.prototype.__proto__ = Object.create(Object.getPrototypeOf(NodeList.prototype), {
-		each: {
-			writable: false,
-			configurable: false,
-			enumerable: false,
-			value: function (fn) {
-				for (var i = 0; i < this.length; i++) {
-					fn.call(this[i], i);
-				}
-			}
-		},
-		bind: {
-			writable: false,
-			configurable: false,
-			enumerable: false,
-			value: function (evtType, callback) {
-				for (var i = 0; i < this.length; i++)
-					this[i].addEventListener(evtType, callback, false);
+                break;
 
-				return this;
-			}
-		},
-		empty: {
-			writable: false,
-			configurable: false,
-			enumerable: false,
-			value: function () {
-				for (var i = 0; i < this.length; i++) {
-					this[i].empty();
-				}
-			}
-		},
-		remove: {
-			writable: false,
-			configurable: false,
-			enumerable: false,
-			value: function () {
-				for (var i = 0; i < this.length; i++) {
-					this[i].parentNode.removeChild(this[i]);
-				}
-			}
-		},
-		addClass: {
-			writable: false,
-			configurable: false,
-			enumerable: false,
-			value: function () {
-				var classNames = Array.prototype.slice.call(arguments, 0);
-				for (var i = 0; i < classNames.length; i++) {
-					for (var j = 0; j < this.length; j++) {
-						this[j].classList.add(classNames[i]);
-					}
-				}
+            case 2:
+                if (arguments[0] instanceof HTMLElement && typeof arguments[1] === "string")
+                    return arguments[0].querySelectorAll(arguments[1]);
 
-				return this;
-			}
-		},
+                break;
+        }
 
-		/**
-		 * if no aguments are supplied, clears all classes from the DOM element(s)
-		 */
-		removeClass: {
-			writable: false,
-			configurable: false,
-			enumerable: false,
-			value: function () {
-				var classNames = Array.prototype.slice.call(arguments, 0);
-				var i, j;
+        throw new TypeError("Can't use these arguments");
+    };
 
-				if (classNames.length) {
-					for (i = 0; i < classNames.length; i++) {
-						for (j = 0; j < this.length; j++) {
-							this[j].classList.remove(classNames[i]);
-						}
-					}
-				} else {
-					for (j = 0; j < this.length; j++) {
-						this[j].className = "";
-					}
-				}
-
-				return this;
-			}
-		}
-	});
+    HTMLElement.prototype.__proto__ = Object.create(Object.getPrototypeOf(HTMLElement.prototype), elementPropertiesObject);
+    NodeList.prototype.__proto__ = Object.create(Object.getPrototypeOf(NodeList.prototype), listPropertiesObject);
 })();
