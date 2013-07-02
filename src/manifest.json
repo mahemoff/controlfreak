@@ -22,7 +22,11 @@
   "web_accessible_resources": ["images/system48.png"],
 
   "background": {
-    "scripts": ["js/config.js", "js/events.js", "js/counter.js"],
+    "scripts": [
+      "js/config.js",
+      "js/events.js",
+      "js/counter.js"
+    ],
     "persistent": false
   },
   "options_page": "scripts.html",

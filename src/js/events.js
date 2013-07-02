@@ -24,7 +24,10 @@
         deleteDownloadedLibs();
 
         if (/^0\./.test(details.previousVersion) || /^1\./.test(details.previousVersion))
-          migrate();
+          migrateFrom1x();
+
+        if (details.previousVersion === "2.0")
+          migrateFrom20();
 
         if (config.VERSION !== details.previousVersion)
           statSend("Users", "Update", {prev: details.previousVersion, cur: config.VERSION});
@@ -64,6 +67,7 @@
       case "content":
         // search for scripts on this page
         searchFreaks(req.url, function (res) {
+          var chromeInject = (localStorage.inject !== "dom");
           var loadLibsTasks = {
             js: [],
             css: []
@@ -84,52 +88,64 @@
             }
           });
 
-          // parallelize JS libraries loading
-          parallel(loadLibsTasks.js, function (libs) {
-            var scriptData = libs.join("\n\n");
-            var hasLocalFreaks = false;
+          parallel({
+            js: function (callback) {
+              // parallelize JS libraries loading
+              parallel(loadLibsTasks.js, function (libs) {
+                var scriptData = libs.join("\n\n");
+                var hasLocalFreaks = false;
 
-            // append js data
-            ["all", "origin", "page"].forEach(function (scope) {
-              var key = "js_" + scope;
-              if (!res[key])
-                return;
+                // append js data
+                ["all", "origin", "page"].forEach(function (scope) {
+                  var key = "js_" + scope;
+                  if (!res[key])
+                    return;
 
-              hasLocalFreaks = true;
-              scriptData += "\n\n" + res[key];
-            });
+                  hasLocalFreaks = true;
+                  scriptData += "\n\n" + res[key];
+                });
 
-            if (hasLocalFreaks)
-              statSend("Usage", "Javascript");
+                if (hasLocalFreaks)
+                  statSend("Usage", "Javascript");
 
-            if (scriptData.length)
-              chrome.tabs.executeScript(sender.tab.id, {code: scriptData});
-          });
+                if (scriptData.length && chromeInject)
+                  chrome.tabs.executeScript(sender.tab.id, {code: scriptData});
 
-          // parallelize CSS libraries loading
-          parallel(loadLibsTasks.css, function (libs) {
-            var stylesData = libs.join("\n\n");
-            var hasLocalFreaks = false;
+                callback(scriptData);
+              });
+            },
+            css: function (callback) {
+              // parallelize CSS libraries loading
+              parallel(loadLibsTasks.css, function (libs) {
+                var stylesData = libs.join("\n\n");
+                var hasLocalFreaks = false;
 
-            // append js data
-            ["all", "origin", "page"].forEach(function (scope) {
-              var key = "css_" + scope;
-              if (!res[key])
-                return;
+                // append js data
+                ["all", "origin", "page"].forEach(function (scope) {
+                  var key = "css_" + scope;
+                  if (!res[key])
+                    return;
 
-              hasLocalFreaks = true;
-              stylesData += "\n\n" + res[key];
-            });
+                  hasLocalFreaks = true;
+                  stylesData += "\n\n" + res[key];
+                });
 
-            if (hasLocalFreaks)
-              statSend("Usage", "CSS");
+                if (hasLocalFreaks)
+                  statSend("Usage", "CSS");
 
-            if (stylesData.length)
-              chrome.tabs.insertCSS(sender.tab.id, {code: stylesData});
+                if (stylesData.length && chromeInject)
+                  chrome.tabs.insertCSS(sender.tab.id, {code: stylesData});
+
+                callback(stylesData);
+              });
+            }
+          }, function (results) {
+            results.chrome = chromeInject;
+            sendResponse(results);
           });
         });
 
-        return false;
+        return true;
         break;
     }
   });
@@ -214,7 +230,7 @@
 
   // migrate to 2.x
   // @see https://github.com/1999/controlfreak/issues/8
-  function migrate() {
+  function migrateFrom1x() {
     var saveData = {};
     var hasFreaks = false;
     var matches;
@@ -237,7 +253,7 @@
       chrome.storage.local.set(saveData);
 
     // show update notification
-    var updateText = chrome.i18n.getMessage("migrateText");
+    var updateText = chrome.i18n.getMessage("migrateText20");
     var notification = window.webkitNotifications.createNotification(chrome.runtime.getURL("images/system48.png"), "Control Freak", updateText);
 
     notification.onclick = function () {
@@ -249,6 +265,34 @@
 
     notification.show();
     statSend("Usage", "Show 2.x notification");
+
+    window.setTimeout(function() {
+      notification.cancel();
+    }, 10000);
+  }
+
+  // migrate from 2.0
+  // @see https://github.com/1999/controlfreak/issues/14
+  function migrateFrom20() {
+    // localStorage.type is used in ControlFreak 2.0
+    if (localStorage.length <= 1)
+      return;
+
+    localStorage.inject = "dom";
+
+    // show update notification
+    var updateText = chrome.i18n.getMessage("migrateText21t");
+    var notification = window.webkitNotifications.createNotification(chrome.runtime.getURL("images/system48.png"), "Control Freak", updateText);
+
+    notification.onclick = function () {
+      statSend("Usage", "Click 2.1 notification");
+
+      notification.cancel();
+      chrome.tabs.create({url: "http://TODO"});
+    };
+
+    notification.show();
+    statSend("Usage", "Show 2.1 notification");
 
     window.setTimeout(function() {
       notification.cancel();

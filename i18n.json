@@ -7,10 +7,17 @@
     }
   },
   {
-    "key": "migrateText",
+    "key": "migrateText20",
     "messages": {
       "en": "Updated to 2.0 and now supports syncing between Chromes and more. Check out the full feature list on Google+!",
       "ru": "Версия 2.0 теперь поддерживает синхронизацию скриптов между компьютерами. Узнайте больше на Google+!"
+    }
+  },
+  {
+    "key": "migrateText21",
+    "messages": {
+      "en": "Updated to 2.1, old injection features restored. Check out the full feature list on Google+!",
+      "ru": "Версия 2.1 поддерживает старое встраивание js/css на веб-страницы. Узнайте больше на Google+!"
     }
   },
   {
@@ -109,6 +116,13 @@
     "messages": {
       "en": "Sync my tweaks (N.B.: tweaks more than %quota% bytes length won't be synced properly)",
       "ru": "Синхронихировать скрипты (ВНИМАНИЕ: скрипты длиной более %quota% байт не будут сохраняться)"
+    }
+  },
+  {
+    "key": "listInjectType",
+    "messages": {
+      "en": "Use new injection type (via chrome.tabs.* API)",
+      "ru": "Использовать новое встраивание CSS/JS (через chrome.tabs.* API)"
     }
   },
   {

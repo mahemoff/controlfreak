@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
   document.title = chrome.i18n.getMessage("listWindowTitle");
 
-  var placeholders = ["listWindowTitle", "listClearTweaks", "listSyncTweaks"];
+  var placeholders = ["listWindowTitle", "listClearTweaks", "listSyncTweaks", "listInjectType"];
   var tplData = {};
   placeholders.forEach(function (placeholder) {
     tplData[placeholder] = chrome.i18n.getMessage(placeholder);
@@ -35,6 +35,15 @@ document.addEventListener("DOMContentLoaded", function () {
     chrome.runtime.sendMessage({action: "changeStorageType", sync: syncState}, function () {
       syncCheckbox.disabled = false;
     });
+  });
+
+  // update injection type checkbox state
+  var injectCheckbox = $("#inject");
+  injectCheckbox.checked = (localStorage.inject !== "dom");
+
+  // bind change injection type state
+  injectCheckbox.bind("click", function () {
+    localStorage.inject = this.checked ? "chrome" : "dom";
   });
 
   // repaint data on storage change
