@@ -249,8 +249,10 @@
       } catch (ex) {}
     }
 
-    if (hasFreaks)
+    if (hasFreaks) {
       chrome.storage.local.set(saveData);
+      localStorage.inject = "dom";
+    }
 
     // show update notification
     var updateText = chrome.i18n.getMessage("migrateText20");
