@@ -115,7 +115,7 @@
     "key": "listSyncTweaks",
     "messages": {
       "en": "Sync my tweaks (N.B.: tweaks more than %quota% bytes length won't be synced properly)",
-      "ru": "Синхронихировать скрипты (ВНИМАНИЕ: скрипты длиной более %quota% байт не будут сохраняться)"
+      "ru": "Синхронизировать скрипты (ВНИМАНИЕ: скрипты длиной более %quota% байт не будут сохраняться)"
     }
   },
   {
