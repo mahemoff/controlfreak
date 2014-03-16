@@ -35,35 +35,35 @@ var config = {
 		"AngularJS": {
 			Google: {
 				placeholder: "http://ajax.googleapis.com/ajax/libs/angularjs/%version%/angular.min.js",
-				versions: ["1.1.4", "1.0.6"]
+				versions: ["1.2.12", "1.1.4", "1.0.6"]
 			}
 		},
 		"Backbone": {
 			CloudFlare: {
 				placeholder: "http://cdnjs.cloudflare.com/ajax/libs/backbone.js/%version%/backbone-min.js",
-				versions: ["1.0.0", "0.9.10"]
+				versions: ["1.1.2", "1.0.0", "0.9.10"]
 			}
 		},
 		"Bootstrap (CSS)": {
 			Yandex: {
 				placeholder: "http://yandex.st/bootstrap/%version%/css/bootstrap.min.css",
-				versions: ["2.3.2", "2.2.2"]
+				versions: ["3.1.1", "2.3.2", "2.2.2"]
 			}
 		},
 		"Bootstrap (Javascript)": {
 			Yandex: {
 				placeholder: "http://yandex.st/bootstrap/%version%/js/bootstrap.min.js",
-				versions: ["2.3.2", "2.2.2"]
+				versions: ["3.1.1", "2.3.2", "2.2.2"]
 			}
 		},
 		"Dojo": {
 			Google: {
 				placeholder: "http://ajax.googleapis.com/ajax/libs/dojo/%version%/dojo/dojo.js",
-				versions: ["1.9.0", "1.8.4", "1.7.4", "1.6.1", "1.5.2"]
+				versions: ["1.9.1", "1.9.0", "1.8.4", "1.7.4", "1.6.1", "1.5.2"]
 			},
 			Yandex: {
 				placeholder: "http://yandex.st/dojo/%version%/dojo/dojo.js",
-				versions: ["1.9.0", "1.8.4", "1.7.4", "1.6.1", "1.5.2"]
+				versions: ["1.9.1", "1.9.0", "1.8.4", "1.7.4", "1.6.1", "1.5.2"]
 			}
 		},
 		"Ext Core": {
@@ -79,33 +79,33 @@ var config = {
 		"Highlight.js": {
 			Yandex: {
 				placeholder: "http://yandex.st/highlightjs/%version%/highlight.min.js",
-				versions: ["7.3", "6.2"]
+				versions: ["8.0", "7.3", "6.2"]
 			}
 		},
 		"jQuery": {
 			Google: {
 				placeholder: "http://ajax.googleapis.com/ajax/libs/jquery/%version%/jquery.min.js",
-				versions: ["2.0.2", "1.10.1", "1.9.1", "1.8.3", "1.7.2", "1.6.4", "1.5.2", "1.4.4"]
+				versions: ["2.1.0", "2.0.2", "1.10.1", "1.9.1", "1.8.3", "1.7.2", "1.6.4", "1.5.2", "1.4.4"]
 			},
 			Yandex: {
 				placeholder: "http://yandex.st/jquery/%version%/jquery.min.js",
-				versions: ["2.0.2", "1.10.1", "1.9.1", "1.8.3", "1.7.2", "1.6.4", "1.5.2", "1.4.4"]
+				versions: ["2.1.0", "2.0.2", "1.10.1", "1.9.1", "1.8.3", "1.7.2", "1.6.4", "1.5.2", "1.4.4"]
 			}
 		},
 		"jQuery UI": {
 			Google: {
 				placeholder: "http://ajax.googleapis.com/ajax/libs/jqueryui/%version%/jquery-ui.min.js",
-				versions: ["1.10.3", "1.9.2", "1.8.23"]
+				versions: ["1.10.4", "1.10.3", "1.9.2", "1.8.23"]
 			},
 			Yandex: {
 				placeholder: "http://yandex.st/jquery-ui/%version%/jquery-ui.min.js",
-				versions: ["1.10.3", "1.9.2", "1.8.23"]
+				versions: ["1.10.4", "1.10.3", "1.9.2", "1.8.23"]
 			}
 		},
 		"Knockout": {
 			Microsoft: {
 				placeholder: "http://ajax.aspnetcdn.com/ajax/knockout/knockout-%version%.js",
-				versions: ["2.2.1", "2.1.0"]
+				versions: ["3.0.0", "2.2.1", "2.1.0"]
 			}
 		},
 		"Mochikit": {
@@ -116,7 +116,8 @@ var config = {
 		},
 		"Modernizr": {
 			Yandex: {
-				placeholder: "http://yandex.st/modernizr/2.6.2/modernizr.min.js"
+				placeholder: "http://yandex.st/modernizr/%version%/modernizr.min.js",
+				versions: ["2.7.1", "2.6.2"]
 			}
 		},
 		"MooTools": {
@@ -164,7 +165,7 @@ var config = {
 		"socket.io": {
 			CloudFlare: {
 				placeholder: "http://cdnjs.cloudflare.com/ajax/libs/socket.io/%version%/socket.io.min.js",
-				versions: ["0.9.10"]
+				versions: ["0.9.16", "0.9.10"]
 			}
 		},
 		"SWFObject": {
@@ -177,10 +178,16 @@ var config = {
 				versions: ["2.2", "2.1"]
 			}
 		},
+		"Underscore.js": {
+			Yandex: {
+				placeholder: "http://yandex.st/underscore/%version%/underscore-min.js",
+				versions: ["1.6.0", "1.5.1", "1.5.2"]
+			}
+		},
 		"Web Font Loader": {
 			Google: {
 				placeholder: "http://ajax.googleapis.com/ajax/libs/webfont/%version%/webfont.js",
-				versions: ["1.4.6", "1.3.0"]
+				versions: ["1.5.2", "1.4.6", "1.3.0"]
 			}
 		},
 		"YUI Library (YUI)": {
