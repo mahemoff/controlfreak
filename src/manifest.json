@@ -1,10 +1,13 @@
 {
   "name": "Control Freak",
   "description" : "__MSG_appDescription__",
-  "version": "2.1",
+  "version": "2.2",
   "manifest_version": 2,
   "minimum_chrome_version" : "22",
   "default_locale": "en",
+
+  "key": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDHR8TXpj2H6yDsU0DAru5aGqo/VgZ5Y3qWEd/Rpjd+NZwE7mJ/I7eX6elly9cwS4fl+ych7EQvOOXxfgt1fWRu0ACaluujy5p1cPPVe+bOO/BnvV6w5LCY0oLyRpNiY2CVqaeCcGYxHsxRspcurFDInHMgMnq4JKVB3KlbFUDWzQIDAQAB",
+  "debug": true,
 
   "icons": {
     "16":  "images/system16.png",

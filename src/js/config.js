@@ -1,5 +1,4 @@
 var config = {
-	CHROME_WEBSTORE_ID: "jgnchehlaggacipokckdlbdemfeohdhc",
 	GA_STAT_ID: "UA-20919085-7", // Google Analytics
 
 	get ID() {
@@ -29,7 +28,7 @@ var config = {
 	},
 
 	get DEBUG() {
-		return (this.CHROME_WEBSTORE_ID !== this.ID);
+		return (chrome.runtime.getManifest().debug === true);
 	},
 
 	LIBS: {

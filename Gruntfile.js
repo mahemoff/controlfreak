@@ -17,6 +17,8 @@ module.exports = function (grunt) {
     exec('cp -r src/ dist', function (err, stdout, stderr) {
       var manifestContents = grunt.file.readJSON('dist/manifest.json');
       manifestContents.name = manifestContents.name.replace(/\sDEV$/, '');
+      delete manifestContents.debug;
+      delete manifestContents.key;
       grunt.file.write('dist/manifest.json', JSON.stringify(manifestContents, null, '  '));
 
       exec('zip -r release.zip .', {cwd: __dirname + '/dist'}, function (err, stdout, stderr) {
